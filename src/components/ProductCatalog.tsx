@@ -34,10 +34,10 @@ interface ProductCatalogProps {
   onOpenQuickView: (product: Product) => void;
 }
 
-const BRANDS = ['all', 'DeWALT', 'BOSCH', 'MAKITA', 'DongCheng'] as const;
-const PRICE_MIN_DEFAULT = 5000;
-const PRICE_MAX_DEFAULT = 60000;
-const ITEMS_PER_PAGE = 9;
+const BRANDS = ['all', 'BOSCH', 'MAKITA', 'DeWALT', 'DongCheng', 'COOFIX', 'INGCO', 'TOTAL', 'HUGO', 'LION'] as const;
+const PRICE_MIN_DEFAULT = 0;
+const PRICE_MAX_DEFAULT = 200000;
+const ITEMS_PER_PAGE = 12;
 
 type SortOption = 'DEFAULT' | 'PRICE_LOW' | 'PRICE_HIGH' | 'POPULAR' | 'DISCOUNT' | 'NAME';
 type PowerSourceFilter = 'all' | 'cordless' | 'corded';
@@ -72,7 +72,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     const counts: Record<string, number> = { all: products.length };
     BRANDS.forEach(b => {
       if (b !== 'all') {
-        counts[b] = products.filter(p => p.brand.toLowerCase() === b.toLowerCase()).length;
+        counts[b] = products.filter(p => (p.brand || '').toLowerCase() === b.toLowerCase()).length;
       }
     });
     return counts;
@@ -82,7 +82,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: products.length };
     CATEGORIES.forEach(c => {
-      counts[c.id] = products.filter(p => p.category === c.id).length;
+      counts[c.id] = products.filter(p => (p.category || '') === c.id).length;
     });
     return counts;
   }, [products]);
@@ -121,25 +121,25 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         if (searchQuery.trim() !== '') {
           const q = searchQuery.toLowerCase().trim();
           const specsMatch = Object.entries(p.specs || {}).some(
-            ([k, v]) => k.toLowerCase().includes(q) || v.toLowerCase().includes(q)
+            ([k, v]) => String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)
           );
           const match =
-            p.name.toLowerCase().includes(q) ||
-            p.brand.toLowerCase().includes(q) ||
-            p.sku.toLowerCase().includes(q) ||
-            p.category.toLowerCase().includes(q) ||
-            (p.description && p.description.toLowerCase().includes(q)) ||
+            (p.name || '').toLowerCase().includes(q) ||
+            (p.brand || '').toLowerCase().includes(q) ||
+            (p.sku || '').toLowerCase().includes(q) ||
+            (p.category || '').toLowerCase().includes(q) ||
+            (p.description || '').toLowerCase().includes(q) ||
             specsMatch;
           if (!match) return false;
         }
 
         // Brand filter
-        if (selectedBrand !== 'all' && p.brand.toLowerCase() !== selectedBrand.toLowerCase()) {
+        if (selectedBrand !== 'all' && (p.brand || '').toLowerCase() !== selectedBrand.toLowerCase()) {
           return false;
         }
 
         // Category filter
-        if (selectedCategory !== 'all' && p.category !== selectedCategory) {
+        if (selectedCategory !== 'all' && (p.category || '') !== selectedCategory) {
           return false;
         }
 
@@ -441,9 +441,9 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         {/* Quick Price Preset Buttons */}
         <div className="grid grid-cols-4 gap-1 text-[11px] font-bold">
           {[
-            { label: '< 20K', max: 20000, min: PRICE_MIN_DEFAULT },
-            { label: '20K-35K', max: 35000, min: 20000 },
-            { label: '35K-50K', max: 50000, min: 35000 },
+            { label: '< 5K', max: 5000, min: 0 },
+            { label: '< 25K', max: 25000, min: 0 },
+            { label: '< 75K', max: 75000, min: 0 },
             { label: 'Any', max: PRICE_MAX_DEFAULT, min: PRICE_MIN_DEFAULT }
           ].map(p => {
             const isMatch = priceCap === p.max && priceMin === p.min;
@@ -486,9 +486,9 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             aria-label="Filter by maximum price"
           />
           <div className="flex justify-between text-[10px] text-zinc-400 font-mono">
-            <span>Rs. 5,000</span>
-            <span>Rs. 35,000</span>
-            <span>Rs. 60,000+</span>
+            <span>Rs. 0</span>
+            <span>Rs. 100,000</span>
+            <span>Rs. 200,000+</span>
           </div>
         </div>
       </div>
@@ -668,13 +668,13 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                   {prod.name}
                 </h4>
                 <div className="flex items-center gap-1.5 text-xs font-bold font-sans">
-                  {prod.originalPrice && (
+                  {prod.originalPrice != null && Number(prod.originalPrice) > Number(prod.price) && (
                     <span className="text-zinc-400 line-through text-[10px] font-mono">
-                      Rs. {prod.originalPrice.toLocaleString()}
+                      Rs. {Number(prod.originalPrice).toLocaleString()}
                     </span>
                   )}
                   <span className="text-red-600">
-                    Rs. {prod.price.toLocaleString()}
+                    Rs. {(Number(prod.price) || 0).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center gap-0.5">
@@ -682,7 +682,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     <Star
                       key={s}
                       className={`w-2.5 h-2.5 ${
-                        s <= Math.round(prod.rating)
+                        s <= Math.round(prod.rating || 5)
                           ? 'text-amber-500 fill-amber-500'
                           : 'text-zinc-300 fill-zinc-200'
                       }`}

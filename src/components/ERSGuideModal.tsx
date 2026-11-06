@@ -156,6 +156,33 @@ if __name__ == "__main__":
         {/* Scrollable Content */}
         <div className="overflow-y-auto p-6 space-y-8 text-xs leading-relaxed text-zinc-300">
           
+          {/* Active ThirdEYE Status Banner */}
+          <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 space-y-2 font-mono">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Live Integration: ThirdEYE ERP Solutions (Active)
+              </div>
+              <span className="px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 text-[10px] font-bold">
+                6,863 ITEMS READY
+              </span>
+            </div>
+            <p className="text-zinc-300 text-xs font-sans">
+              Tools Mahagedara is connected to the official inventory server (<code className="px-1.5 py-0.5 rounded bg-zinc-900 text-amber-400 font-mono">http://103.47.225.144</code> - RTT Construction). 
+              To refresh all products, prices, and quantities from terminal at any time, run:
+            </p>
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-[11px] text-zinc-200">
+              <code>npm run sync:erp</code>
+              <button
+                onClick={() => copyToClipboard('npm run sync:erp', 'npm-sync')}
+                className="flex items-center gap-1 text-amber-400 hover:text-white"
+              >
+                {copiedIndex === 'npm-sync' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedIndex === 'npm-sync' ? 'Copied!' : 'Copy'}</span>
+              </button>
+            </div>
+          </div>
+
           {/* Architecture Visual Diagram */}
           <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-3">
             <div className="text-xs font-bold uppercase text-amber-400 font-mono flex items-center gap-2">

@@ -97,21 +97,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenQuickVi
         <div className="flex items-baseline justify-between pt-1">
           <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-lg font-black text-zinc-950 font-display">
-              Rs. {product.price.toLocaleString()}
+              Rs. {(Number(product.price) || 0).toLocaleString()}
             </span>
-            {product.originalPrice && (
+            {product.originalPrice != null && Number(product.originalPrice) > Number(product.price) && (
               <span className="text-zinc-500 line-through text-sm">
-                Rs. {product.originalPrice.toLocaleString()}
+                Rs. {Number(product.originalPrice).toLocaleString()}
               </span>
             )}
-            {product.discountPercentage && (
+            {Boolean(product.discountPercentage) && Number(product.discountPercentage) > 0 && (
               <span className="text-sm font-bold text-red-700">−{product.discountPercentage}%</span>
             )}
           </div>
 
-          <div className="flex items-center gap-1 text-sm shrink-0" aria-label={`Rated ${product.rating} out of 5`}>
+          <div className="flex items-center gap-1 text-sm shrink-0" aria-label={`Rated ${product.rating || 5} out of 5`}>
             <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-            <span className="font-semibold text-zinc-900">{product.rating}</span>
+            <span className="font-semibold text-zinc-900">{product.rating || 4.8}</span>
           </div>
         </div>
       </div>

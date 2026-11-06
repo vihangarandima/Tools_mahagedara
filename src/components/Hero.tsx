@@ -104,8 +104,8 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog, onOpenFeatured }) 
                     style={{ backgroundImage: `url('/images/hardware_stage_bg.jpg')` }}
                   />
                   <img
-                    src="/images/tool_1_transparent.png"
-                    alt=""
+                    src={featured.image || "/images/tool_1_transparent.png"}
+                    alt={featured.name}
                     className="relative max-h-[82%] max-w-[82%] object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.9)] group-hover:scale-105 transition-transform duration-500"
                   />
                 </button>
@@ -120,11 +120,11 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog, onOpenFeatured }) 
                     </div>
                     <div className="text-right shrink-0">
                       <span className="text-2xl font-black text-white font-display block">
-                        Rs. {featured.price.toLocaleString()}
+                        Rs. {(Number(featured.price) || 0).toLocaleString()}
                       </span>
-                      {featured.originalPrice && (
+                      {featured.originalPrice != null && Number(featured.originalPrice) > Number(featured.price) && (
                         <span className="text-sm text-zinc-400 line-through">
-                          Rs. {featured.originalPrice.toLocaleString()}
+                          Rs. {Number(featured.originalPrice).toLocaleString()}
                         </span>
                       )}
                     </div>

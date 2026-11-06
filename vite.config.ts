@@ -11,6 +11,13 @@ export default defineConfig({
   server: {
     port: 5180,
     strictPort: true,
-    host: true
+    host: true,
+    proxy: {
+      '/api/thirdeye': {
+        target: 'http://103.47.225.144/main_api/Api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/thirdeye/, '')
+      }
+    }
   }
 });

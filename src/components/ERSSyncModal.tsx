@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
   RefreshCw, 
@@ -14,14 +14,20 @@ import {
   Sparkles, 
   ArrowRight,
   Terminal,
-  RotateCcw
+  RotateCcw,
+  Search,
+  Package,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useERS } from '../context/ERSContext';
+import { SAMPLE_TOOL_IMAGES } from '../utils/erpProductMapper';
+import { Product } from '../types';
 
 export const ERSSyncModal: React.FC = () => {
   const { 
     config, 
     logs, 
+    customImages,
     isSyncing, 
     isSyncModalOpen, 
     setIsSyncModalOpen, 
@@ -30,10 +36,12 @@ export const ERSSyncModal: React.FC = () => {
     importCSVInventory, 
     updateConfig, 
     resetToDefaultData,
-    products 
+    products,
+    updateProductManually,
+    updateProductImage
   } = useERS();
 
-  const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'CSV_IMPORT' | 'API_CONFIG' | 'LOGS'>('OVERVIEW');
+  const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'IMAGE_MANAGER' | 'CSV_IMPORT' | 'API_CONFIG' | 'LOGS'>('OVERVIEW');
   const [csvInput, setCsvInput] = useState('');
   const [importStatus, setImportStatus] = useState<{ success?: boolean; message?: string } | null>(null);
 
@@ -42,6 +50,59 @@ export const ERSSyncModal: React.FC = () => {
   const [apiKey, setApiKey] = useState(config.apiKey);
   const [systemName, setSystemName] = useState(config.systemName);
   const [pollInterval, setPollInterval] = useState(config.pollingIntervalMinutes);
+
+  // Image Customizer states
+  const [imgSearch, setImgSearch] = useState('');
+  const [selectedProductForImg, setSelectedProductForImg] = useState<Product | null>(null);
+  const [customUrlInput, setCustomUrlInput] = useState('');
+  const [imgUploadLoading, setImgUploadLoading] = useState(false);
+
+  const filteredImgProducts = useMemo(() => {
+    if (!imgSearch.trim()) return products;
+    const q = imgSearch.toLowerCase().trim();
+    return products.filter(p => p.sku.toLowerCase().includes(q) || p.name.toLowerCase().includes(q));
+  }, [products, imgSearch]);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setImportStatus({ success: false, message: 'Please select a valid image file (PNG, JPG, WebP).' });
+      return;
+    }
+
+    setImgUploadLoading(true);
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64 = uploadEvent.target?.result as string;
+      if (base64 && selectedProductForImg) {
+        updateProductImage(selectedProductForImg.sku, base64);
+        setCustomUrlInput(base64);
+        setImportStatus({ success: true, message: `Image updated for ${selectedProductForImg.name}!` });
+      }
+      setImgUploadLoading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveUrl = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProductForImg) return;
+    if (!customUrlInput.trim()) {
+      setImportStatus({ success: false, message: 'Please enter or paste an image URL.' });
+      return;
+    }
+    updateProductImage(selectedProductForImg.sku, customUrlInput.trim());
+    setImportStatus({ success: true, message: `Image updated for ${selectedProductForImg.name}!` });
+  };
+
+  const applyPresetImage = (url: string) => {
+    if (!selectedProductForImg) return;
+    updateProductImage(selectedProductForImg.sku, url);
+    setCustomUrlInput(url);
+    setImportStatus({ success: true, message: `Preset image applied to ${selectedProductForImg.name}!` });
+  };
 
   if (!isSyncModalOpen) return null;
 
@@ -77,10 +138,12 @@ export const ERSSyncModal: React.FC = () => {
   };
 
   const sampleCSVTemplate = `SKU,ITEM_NAME,PRICE_LKR,QTY_ON_HAND
-TM-BOSCH-GSB183,BOSCH GSB 183-LI Cordless Drill,36500,22
-TM-CF-AG115-750,COOFIX Angle Grinder 115mm,13800,45
-TM-DC-Z1C-FF05-26,DongCheng Rotary Hammer 26mm,26800,30
-TM-LION-PW100,LION High Pressure Washer 100Bar,38500,15`;
+BCDA1605,SOCKET HEX BIT 1/2*5MM,1250,4
+BCDA1604,SOCKET HEX BIT 1/2*4MM,1250,4
+CLA006,VERNIER CALIPER 6 INH,3900,6
+CMW0005,10MM COMBINATION WRENCH,400,30
+DBV-900N,LEVER TYPE GREASE GUN 900CC,5800,5
+HUGO MAX AIRLESS PAINT SPRAYER,HUGO MAX AIRLESS PAINT SPRAYER,92950,0`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
@@ -122,13 +185,27 @@ TM-LION-PW100,LION High Pressure Washer 100Bar,38500,15`;
         <div className="flex border-b border-zinc-800 bg-zinc-950/60 px-6 text-xs font-semibold overflow-x-auto">
           <button
             onClick={() => setActiveTab('OVERVIEW')}
-            className={`py-3 px-4 border-b-2 font-mono uppercase tracking-wider transition-colors ${
+            className={`py-3 px-4 border-b-2 font-mono uppercase tracking-wider transition-colors shrink-0 ${
               activeTab === 'OVERVIEW'
                 ? 'border-amber-400 text-amber-400 font-bold'
                 : 'border-transparent text-zinc-400 hover:text-white'
             }`}
           >
             Live Monitor & Trigger
+          </button>
+          <button
+            onClick={() => setActiveTab('IMAGE_MANAGER')}
+            className={`py-3 px-4 border-b-2 font-mono uppercase tracking-wider transition-colors shrink-0 flex items-center gap-1.5 ${
+              activeTab === 'IMAGE_MANAGER'
+                ? 'border-amber-400 text-amber-400 font-bold'
+                : 'border-transparent text-zinc-400 hover:text-white'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>Product Images</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+              {Object.keys(customImages).length > 0 ? `${Object.keys(customImages).length} Custom` : 'Edit'}
+            </span>
           </button>
           <button
             onClick={() => setActiveTab('CSV_IMPORT')}
@@ -304,6 +381,200 @@ TM-LION-PW100,LION High Pressure Washer 100Bar,38500,15`;
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: PRODUCT IMAGE MANAGER */}
+          {activeTab === 'IMAGE_MANAGER' && (
+            <div className="space-y-6">
+              <div className="p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase font-mono">
+                    <ImageIcon className="w-4 h-4" />
+                    Store Product Image Customizer
+                  </div>
+                  <span className="text-[11px] font-mono text-zinc-400">
+                    {products.length} Products in Catalog • {Object.keys(customImages).length} Custom Photos Active
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  ThirdEYE ERP manages product SKUs, stock levels, and prices. Here, you can assign high-resolution product photos by pasting an image link or uploading photos directly from your phone/computer.
+                </p>
+              </div>
+
+              {/* Search & Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                {/* Left Column: Product Search & List */}
+                <div className="md:col-span-5 space-y-3">
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search SKU or name (e.g. BCDA, HUGO, DRILL)..."
+                      value={imgSearch}
+                      onChange={e => setImgSearch(e.target.value)}
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-400 font-mono"
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-zinc-800 bg-zinc-950 max-h-96 overflow-y-auto divide-y divide-zinc-800/60">
+                    {filteredImgProducts.slice(0, 50).map(p => {
+                      const isSelected = selectedProductForImg?.sku === p.sku;
+                      const hasCustom = Boolean(customImages[p.sku] || customImages[p.sku.toUpperCase()]);
+                      return (
+                        <div
+                          key={p.sku || p.id}
+                          onClick={() => {
+                            setSelectedProductForImg(p);
+                            setCustomUrlInput(p.image);
+                          }}
+                          className={`p-3 flex items-center justify-between gap-3 cursor-pointer transition-colors ${
+                            isSelected ? 'bg-amber-500/15 border-l-2 border-amber-400' : 'hover:bg-zinc-900'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <img src={p.image} alt={p.name} className="w-9 h-9 rounded-lg object-cover bg-zinc-900 border border-zinc-800 shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold text-white truncate">{p.name}</div>
+                              <div className="text-[11px] text-zinc-400 font-mono flex items-center gap-1.5">
+                                <span>{p.sku}</span>
+                                {hasCustom && (
+                                  <span className="px-1 py-0.2 rounded bg-emerald-950 text-emerald-400 text-[9px] font-bold">CUSTOM</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-xs font-bold text-amber-400 font-mono">Rs. {p.price.toLocaleString()}</div>
+                            <div className="text-[10px] text-zinc-500 font-mono">{p.stockQuantity} in stock</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right Column: Editor Panel */}
+                <div className="md:col-span-7 bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 space-y-5">
+                  {selectedProductForImg ? (
+                    <>
+                      <div className="flex items-start justify-between gap-4 border-b border-zinc-800 pb-4">
+                        <div>
+                          <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 text-[10px] font-mono font-bold uppercase">
+                            SKU: {selectedProductForImg.sku}
+                          </span>
+                          <h4 className="text-sm font-bold text-white mt-1">{selectedProductForImg.name}</h4>
+                          <div className="text-xs text-amber-400 font-mono font-bold mt-0.5">
+                            Rs. {selectedProductForImg.price.toLocaleString()} • {selectedProductForImg.stockQuantity} Units In Stock
+                          </div>
+                        </div>
+                        <img
+                          src={customUrlInput || selectedProductForImg.image}
+                          alt="Preview"
+                          className="w-16 h-16 rounded-xl object-contain bg-zinc-950 border border-zinc-700 shrink-0 p-1"
+                        />
+                      </div>
+
+                      {/* 1. Paste Image URL */}
+                      <form onSubmit={handleSaveUrl} className="space-y-2">
+                        <label className="text-xs font-bold text-zinc-300 uppercase font-mono block">
+                          Option 1: Paste Image URL
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            value={customUrlInput}
+                            onChange={e => setCustomUrlInput(e.target.value)}
+                            placeholder="https://example.com/tool-photo.jpg"
+                            className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-amber-400"
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded-xl font-bold text-xs uppercase font-mono cursor-pointer shrink-0"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </form>
+
+                      {/* 2. Upload from device */}
+                      <div className="space-y-2 pt-2 border-t border-zinc-800">
+                        <label className="text-xs font-bold text-zinc-300 uppercase font-mono block">
+                          Option 2: Upload File From Computer or Phone
+                        </label>
+                        <label className="flex items-center justify-center gap-2 p-3 border-2 border-dashed border-zinc-700 hover:border-amber-400/60 rounded-xl cursor-pointer text-xs text-zinc-400 hover:text-white transition-colors bg-zinc-950/50">
+                          <Upload className="w-4 h-4 text-amber-400" />
+                          <span>{imgUploadLoading ? 'Processing Image...' : 'Click to Browse & Upload Photo (PNG / JPG / WebP)'}</span>
+                          <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                        </label>
+                      </div>
+
+                      {/* 3. Sample Presets */}
+                      <div className="space-y-2 pt-2 border-t border-zinc-800">
+                        <label className="text-xs font-bold text-zinc-400 uppercase font-mono block">
+                          Option 3: Quick Tool Presets
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono">
+                          <button
+                            type="button"
+                            onClick={() => applyPresetImage(SAMPLE_TOOL_IMAGES.powerTools)}
+                            className="p-2 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-400 text-zinc-300 hover:text-white text-left truncate cursor-pointer"
+                          >
+                            ⚡ Power Drill
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => applyPresetImage(SAMPLE_TOOL_IMAGES.handTools)}
+                            className="p-2 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-400 text-zinc-300 hover:text-white text-left truncate cursor-pointer"
+                          >
+                            🔧 Wrench / Socket
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => applyPresetImage(SAMPLE_TOOL_IMAGES.paintSprayer)}
+                            className="p-2 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-400 text-zinc-300 hover:text-white text-left truncate cursor-pointer"
+                          >
+                            🎨 Paint Sprayer
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => applyPresetImage(SAMPLE_TOOL_IMAGES.measuring)}
+                            className="p-2 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-400 text-zinc-300 hover:text-white text-left truncate cursor-pointer"
+                          >
+                            📏 Caliper / Measure
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => applyPresetImage(SAMPLE_TOOL_IMAGES.toolBox)}
+                            className="p-2 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-400 text-zinc-300 hover:text-white text-left truncate cursor-pointer"
+                          >
+                            🧰 Tool Box
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => applyPresetImage(SAMPLE_TOOL_IMAGES.machinery)}
+                            className="p-2 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-400 text-zinc-300 hover:text-white text-left truncate cursor-pointer"
+                          >
+                            ⚙️ Machinery / Pump
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => applyPresetImage(SAMPLE_TOOL_IMAGES.hardware)}
+                            className="p-2 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-amber-400 text-zinc-300 hover:text-white text-left truncate cursor-pointer"
+                          >
+                            🔩 Hardware / Bits
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="h-64 flex flex-col items-center justify-center text-center text-zinc-500 font-mono text-xs space-y-2">
+                      <ImageIcon className="w-8 h-8 text-zinc-600" />
+                      <p>Select any product from the left list to change its image.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

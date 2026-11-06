@@ -14,6 +14,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useERS } from '../context/ERSContext';
 import { SRI_LANKA_DISTRICTS, STORE_CONTACT } from '../data/mockProducts';
 import { OrderDetails } from '../types';
 
@@ -73,6 +74,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onOrderComplete
 }) => {
   const { cart, subtotal, shippingFee, total, selectedDistrict, setSelectedDistrict, clearCart } = useCart();
+  const { verifyCartStock } = useERS();
 
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
@@ -144,7 +146,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     }
   };
 
-  const handleSubmitOrder = (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -160,6 +162,33 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       setErrorMessage('Please enter the street delivery address.');
       return;
     }
+
+    // ⚡ Real-Time ThirdEYE ERP Stock Verification before taking payment or accepting order
+    setIsProcessing(true);
+    setProcessingStatus('Checking live store showroom stock with ThirdEYE ERP...');
+    try {
+      const stockCheck = await verifyCartStock(cart);
+      if (!stockCheck.valid) {
+        setIsProcessing(false);
+        if (stockCheck.outOfStockItems.length > 0) {
+          const item = stockCheck.outOfStockItems[0];
+          setErrorMessage(
+            `⚠️ Real-Time Stock Alert: "${item.name}" has only ${item.availableQty} units left in store stock (you requested ${item.requestedQty}). Please adjust quantity or contact store hotline.`
+          );
+          return;
+        }
+        if (stockCheck.priceMismatches.length > 0) {
+          const item = stockCheck.priceMismatches[0];
+          setErrorMessage(
+            `⚠️ Real-Time Price Update: The showroom rate for "${item.name}" was just updated to Rs. ${item.currentPrice.toLocaleString()}. Please refresh your cart.`
+          );
+          return;
+        }
+      }
+    } catch (stockErr) {
+      console.warn('Real-time stock check bypassed due to network:', stockErr);
+    }
+    setIsProcessing(false);
 
     // Validation for Online Card
     if (paymentMethod === 'ONLINE_CARD') {
