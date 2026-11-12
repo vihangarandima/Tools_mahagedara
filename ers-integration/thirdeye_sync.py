@@ -34,9 +34,11 @@ logging.basicConfig(
 
 # API Configuration (Defaults provided by ThirdEYE ERP document)
 API_BASE_URL = os.environ.get("THIRDEYE_API_URL", "http://103.47.225.144/main_api/Api").rstrip('/')
-USERNAME = os.environ.get("THIRDEYE_USERNAME", "Developer")
-PASSWORD = os.environ.get("THIRDEYE_PASSWORD", "rtt@#123")
-TOKEN_X = os.environ.get("THIRDEYE_TOKENX", "ydjJP7B6tq")
+USERNAME = os.environ.get("THIRDEYE_USERNAME", "")
+PASSWORD = os.environ.get("THIRDEYE_PASSWORD", "")
+TOKEN_X = os.environ.get("THIRDEYE_TOKENX", "")
+if not (USERNAME and PASSWORD and TOKEN_X):
+    sys.exit("Set THIRDEYE_USERNAME, THIRDEYE_PASSWORD and THIRDEYE_TOKENX environment variables first.")
 
 def post_json(url: str, payload: dict, headers: dict = None) -> dict:
     data = json.dumps(payload).encode('utf-8')

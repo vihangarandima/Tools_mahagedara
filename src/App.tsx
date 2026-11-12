@@ -11,6 +11,8 @@ import { CartDrawer } from './components/CartDrawer';
 import { OrderSuccessModal } from './components/OrderSuccessModal';
 import { QuickWhatsAppButton } from './components/QuickWhatsAppButton';
 import { Product, OrderDetails } from './types';
+import { ONLINE_PAYMENTS_ENABLED } from './data/payments';
+import { scrollToSection } from './utils/scrollToSection';
 
 // Heavy modals are split into their own chunks and only fetched when opened
 const CheckoutModal = lazy(() => import('./components/CheckoutModal').then(m => ({ default: m.CheckoutModal })));
@@ -44,29 +46,28 @@ const MainApp: React.FC = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [completedOrder, isPaymentPortalOpen, isCheckoutOpen, activeProductModal, isCartOpen, isGuideModalOpen, isSyncModalOpen]);
 
+  // Hidden while online payments are only simulated (see src/data/payments.ts)
+  const openPaymentPortal = ONLINE_PAYMENTS_ENABLED ? () => setIsPaymentPortalOpen(true) : undefined;
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const scrollToCatalog = () => {
     setSelectedCategory('all');
-    const el = document.getElementById('catalog-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('catalog-section');
   };
 
   const scrollToAbout = () => {
-    const el = document.getElementById('about-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('about-section');
   };
 
   const scrollToServices = () => {
-    const el = document.getElementById('services-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('services-section');
   };
 
   const scrollToContact = () => {
-    const el = document.getElementById('footer-contact');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('footer-contact');
   };
 
   return (
@@ -78,7 +79,7 @@ const MainApp: React.FC = () => {
         onNavigateAbout={scrollToAbout}
         onNavigateServices={scrollToServices}
         onNavigateContact={scrollToContact}
-        onOpenPaymentPortal={() => setIsPaymentPortalOpen(true)}
+        onOpenPaymentPortal={openPaymentPortal}
       />
 
       {/* 2. Hero Section: Architectural editorial hero with typography, trust metrics, and featured hardware showcase */}
@@ -103,7 +104,7 @@ const MainApp: React.FC = () => {
 
       {/* 5. Footer: Exact 3-column dark layout with stats, address, and Sent Message form */}
       <Footer 
-        onOpenPaymentPortal={() => setIsPaymentPortalOpen(true)}
+        onOpenPaymentPortal={openPaymentPortal}
       />
 
       {/* Interactive Modals */}
@@ -114,7 +115,7 @@ const MainApp: React.FC = () => {
 
       <CartDrawer
         onOpenCheckout={() => setIsCheckoutOpen(true)}
-        onOpenPaymentPortal={() => setIsPaymentPortalOpen(true)}
+        onOpenPaymentPortal={openPaymentPortal}
       />
 
       <Suspense fallback={null}>

@@ -17,6 +17,7 @@ import { useCart } from '../context/CartContext';
 import { useERS } from '../context/ERSContext';
 import { SRI_LANKA_DISTRICTS, STORE_CONTACT } from '../data/mockProducts';
 import { OrderDetails } from '../types';
+import { ONLINE_PAYMENTS_ENABLED } from '../data/payments';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ interface CheckoutModalProps {
 
 type OrderMethod = OrderDetails['orderMethod'];
 
-const METHODS: { id: OrderMethod; title: string; badge?: string; description: string }[] = [
+const ALL_METHODS: { id: OrderMethod; title: string; badge?: string; description: string }[] = [
   {
     id: 'ONLINE_CARD',
     title: 'Credit / Debit Card (LankaPay)',
@@ -65,6 +66,9 @@ const METHODS: { id: OrderMethod; title: string; badge?: string; description: st
   }
 ];
 
+// Card and Koko are simulated, so they are only offered once a real gateway is connected
+const METHODS = ALL_METHODS.filter(m => ONLINE_PAYMENTS_ENABLED || (m.id !== 'ONLINE_CARD' && m.id !== 'KOKO_PAY'));
+
 const inputClass = 'w-full bg-white border border-zinc-300 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition-colors';
 const labelClass = 'text-xs font-bold text-zinc-700 mb-1 block';
 
@@ -82,7 +86,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<OrderMethod>('ONLINE_CARD');
+  const [paymentMethod, setPaymentMethod] = useState<OrderMethod>(ONLINE_PAYMENTS_ENABLED ? 'ONLINE_CARD' : 'COD');
   const [errorMessage, setErrorMessage] = useState('');
 
   // Card specific state
@@ -328,7 +332,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 Checkout & Secure Payment
               </h2>
               <p className="text-xs text-zinc-400">
-                Official LankaPay Online Gateway, Bank Transfer or Cash on Delivery
+                {ONLINE_PAYMENTS_ENABLED ? 'Official LankaPay Online Gateway, Bank Transfer or Cash on Delivery' : 'Cash on Delivery, Bank Transfer or confirm on WhatsApp'}
               </p>
             </div>
           </div>

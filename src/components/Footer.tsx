@@ -11,6 +11,8 @@ interface FooterProps {
   onOpenPaymentPortal?: () => void;
 }
 
+const isStaffView = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('staff');
+
 export const Footer: React.FC<FooterProps> = ({ onOpenPaymentPortal }) => {
   const { setIsSyncModalOpen } = useERS();
   const [name, setName] = useState('');
@@ -173,13 +175,16 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPaymentPortal }) => {
 
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
           <p>© {new Date().getFullYear()} Tools මහගෙදර (Tools Mahagedara), Kalutara, Sri Lanka.</p>
-          <button
-            type="button"
-            onClick={() => setIsSyncModalOpen(true)}
-            className="text-zinc-400 hover:text-zinc-200 underline underline-offset-2 cursor-pointer"
-          >
-            Staff: inventory sync
-          </button>
+          {/* Staff tools are only shown when the site is opened with ?staff in the URL */}
+          {isStaffView && (
+            <button
+              type="button"
+              onClick={() => setIsSyncModalOpen(true)}
+              className="text-zinc-400 hover:text-zinc-200 underline underline-offset-2 cursor-pointer"
+            >
+              Staff: inventory sync
+            </button>
+          )}
         </div>
 
       </div>

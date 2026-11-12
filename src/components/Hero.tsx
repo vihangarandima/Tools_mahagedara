@@ -1,22 +1,25 @@
 import React from 'react';
-import { ShieldCheck, Truck, Star, ArrowDown, ArrowUpRight } from 'lucide-react';
+import { ShieldCheck, Truck, Star, ArrowDown, ArrowUpRight, Tag } from 'lucide-react';
 import { STORE_CONTACT } from '../data/mockProducts';
 import { useERS } from '../context/ERSContext';
+import { CURRENT_OFFER } from '../data/offer';
+import { scrollToSection } from '../utils/scrollToSection';
 
 interface HeroProps {
   onExploreCatalog?: () => void;
   onOpenFeatured?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExploreCatalog, onOpenFeatured }) => {
+export const Hero: React.FC<HeroProps> = ({ onExploreCatalog }) => {
   const { products } = useERS();
-  const featured = products.find(p => p.id === 'prod-001') || products[0];
+  const offerHref = CURRENT_OFFER.ctaHref ||
+    `https://wa.me/${STORE_CONTACT.whatsapp.replace('+', '')}?text=${encodeURIComponent(`Hello Tools Mahagedara, I'd like to know more about your offer${CURRENT_OFFER.title ? `: ${CURRENT_OFFER.title}` : ''}.`)}`;
 
   const scrollToCatalog = () => {
     if (onExploreCatalog) {
       onExploreCatalog();
     } else {
-      document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+      scrollToSection('catalog-section');
     }
   };
 
@@ -89,60 +92,55 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog, onOpenFeatured }) 
             </div>
           </div>
 
-          {/* Right: one featured tool */}
-          {featured && (
-            <div className="lg:col-span-5">
-              <div className="rounded-3xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 text-white">
-                <button
-                  type="button"
-                  onClick={onOpenFeatured || scrollToCatalog}
-                  aria-label={`View ${featured.name}`}
-                  className="relative h-56 w-full rounded-2xl overflow-hidden bg-zinc-950 flex items-center justify-center cursor-pointer group"
+          {/* Right: current offer banner (set in src/data/offer.ts) */}
+          <div className="lg:col-span-5">
+            <div className="rounded-3xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 text-white">
+              {CURRENT_OFFER.image ? (
+                <a
+                  href={offerHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={CURRENT_OFFER.title || 'View current offer'}
+                  className="block relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-zinc-950 group"
                 >
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url('/images/hardware_stage_bg.webp')` }}
+                  <img
+                    fetchPriority="high"
+                    decoding="async"
+                    src={CURRENT_OFFER.image}
+                    alt={CURRENT_OFFER.title || 'Current offer'}
+                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                   />
-                  <img fetchPriority="high" decoding="async"
-                    src={featured.image || "/images/tool_1_transparent.webp"}
-                    alt={featured.name}
-                    className="relative max-h-[82%] max-w-[82%] object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.9)] group-hover:scale-105 transition-transform duration-500"
-                  />
-                </button>
-
-                <div className="pt-5 space-y-4 text-left">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <span className="text-xs font-bold text-amber-400">Featured · {featured.brand}</span>
-                      <h2 className="text-lg font-black text-white font-display leading-snug mt-0.5">
-                        {featured.name}
-                      </h2>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className="text-2xl font-black text-white font-display block">
-                        Rs. {(Number(featured.price) || 0).toLocaleString()}
-                      </span>
-                      {featured.originalPrice != null && Number(featured.originalPrice) > Number(featured.price) && (
-                        <span className="text-sm text-zinc-400 line-through">
-                          Rs. {Number(featured.originalPrice).toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-zinc-400">{featured.warranty}</p>
-
-                  <button
-                    type="button"
-                    onClick={onOpenFeatured || scrollToCatalog}
-                    className="w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-sm transition-colors rounded-xl cursor-pointer font-display border border-zinc-700"
-                  >
-                    View specs and order
-                  </button>
+                </a>
+              ) : (
+                <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-zinc-950 border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center gap-3 text-center px-6">
+                  <Tag className="w-10 h-10 text-amber-400" aria-hidden="true" />
+                  <span className="text-xl font-black font-display">New offers coming soon</span>
+                  <span className="text-sm text-zinc-400">Ask us on WhatsApp for this week&apos;s deals.</span>
                 </div>
+              )}
+
+              <div className="pt-5 space-y-4 text-left">
+                <div>
+                  <span className="text-xs font-bold text-amber-400">Special offer</span>
+                  <h2 className="text-lg font-black text-white font-display leading-snug mt-0.5">
+                    {CURRENT_OFFER.title || 'Exclusive showroom deals'}
+                  </h2>
+                  {CURRENT_OFFER.subtitle && (
+                    <p className="text-sm text-zinc-400 mt-1">{CURRENT_OFFER.subtitle}</p>
+                  )}
+                </div>
+
+                <a
+                  href={offerHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-white text-center font-bold text-sm transition-colors rounded-xl font-display border border-zinc-700"
+                >
+                  {CURRENT_OFFER.ctaLabel || 'Ask about this offer'}
+                </a>
               </div>
             </div>
-          )}
+          </div>
 
         </div>
       </div>

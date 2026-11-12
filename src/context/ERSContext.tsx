@@ -31,7 +31,7 @@ interface ERSContextType {
 
 const DEFAULT_CONFIG: ERSSyncConfig = {
   endpointUrl: 'http://103.47.225.144/main_api/Api',
-  apiKey: 'ydjJP7B6tq',
+  apiKey: '',
   pollingIntervalMinutes: 15,
   syncFrequency: 'EVERY_15_MIN',
   autoStockThreshold: 3,
@@ -276,51 +276,11 @@ export const ERSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       let erpItems: Array<{ sku: string; name: string; price: number; stockQuantity: number }> = [];
       let sourceName = 'ThirdEYE ERP (Live API Bridge)';
 
-      // 1. Try Direct Proxied API Call first
-      try {
-        const loginRes = await fetch('/api/thirdeye/users/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: 'Developer',
-            password: 'rtt@#123',
-            tokenX: 'ydjJP7B6tq'
-          })
-        });
-
-        if (loginRes.ok) {
-          const loginData = await loginRes.json();
-          if (loginData.result === 'success' && loginData.token) {
-            const itemsRes = await fetch('/api/thirdeye/get_itemListRTT', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Api-key': loginData.token
-              },
-              body: JSON.stringify({ tokenX: 'ydjJP7B6tq' })
-            });
-
-            if (itemsRes.ok) {
-              const itemsData = await itemsRes.json();
-              if (itemsData.result === 'success' && Array.isArray(itemsData.itemlist)) {
-                erpItems = itemsData.itemlist.map((it: any) => ({
-                  sku: String(it.itemCode || '').trim(),
-                  name: String(it.itemName || '').trim(),
-                  price: parseFloat(it.itemRate) || 0,
-                  stockQuantity: Math.max(0, parseFloat(it.onHand) || 0)
-                }));
-              }
-            }
-          }
-        }
-      } catch (proxyErr) {
-        // Silently handle in background
-      }
-
-      // 2. If live proxy wasn't available, read the synced snapshot file
+      // ERP credentials must never ship to the browser: the store PC runs
+      // ers-integration/thirdeye_sync.js, which publishes this snapshot file.
       if (erpItems.length === 0) {
         try {
-          const staticRes = await fetch('/data/thirdeye_inventory.json?t=' + Date.now());
+          const staticRes = await fetch('/data/thirdeye_inventory.json', { cache: 'no-cache' });
           if (staticRes.ok) {
             const staticData = await staticRes.json();
             if (Array.isArray(staticData.items) && staticData.items.length > 0) {
@@ -435,50 +395,10 @@ export const ERSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     let liveItems: Array<{ sku: string; name: string; price: number; stockQuantity: number }> = [];
 
-    // Try fetching freshest live inventory
-    try {
-      const loginRes = await fetch('/api/thirdeye/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: 'Developer',
-          password: 'rtt@#123',
-          tokenX: 'ydjJP7B6tq'
-        })
-      });
-
-      if (loginRes.ok) {
-        const loginData = await loginRes.json();
-        if (loginData.result === 'success' && loginData.token) {
-          const itemsRes = await fetch('/api/thirdeye/get_itemListRTT', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Api-key': loginData.token
-            },
-            body: JSON.stringify({ tokenX: 'ydjJP7B6tq' })
-          });
-
-          if (itemsRes.ok) {
-            const itemsData = await itemsRes.json();
-            if (Array.isArray(itemsData.itemlist)) {
-              liveItems = itemsData.itemlist.map((it: any) => ({
-                sku: String(it.itemCode || '').trim(),
-                name: String(it.itemName || '').trim(),
-                price: parseFloat(it.itemRate) || 0,
-                stockQuantity: Math.max(0, parseFloat(it.onHand) || 0)
-              }));
-            }
-          }
-        }
-      }
-    } catch {
-      // Fallback to static snapshot
-    }
-
+    // Freshest published snapshot (written by the store PC's ERP sync script)
     if (liveItems.length === 0) {
       try {
-        const staticRes = await fetch('/data/thirdeye_inventory.json?t=' + Date.now());
+        const staticRes = await fetch('/data/thirdeye_inventory.json', { cache: 'no-cache' });
         if (staticRes.ok) {
           const staticData = await staticRes.json();
           if (Array.isArray(staticData.items)) {

@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useDeferredValue } from 'react';
+import { scrollToSection } from '../utils/scrollToSection';
 import {
   Search,
   X,
@@ -114,12 +115,13 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   ]);
 
   // Filtered and sorted products
+  const deferredSearch = useDeferredValue(searchQuery);
   const filteredProducts = useMemo(() => {
     return products
       .filter(p => {
         // Search filter (name, brand, sku, category, description, and specs)
-        if (searchQuery.trim() !== '') {
-          const q = searchQuery.toLowerCase().trim();
+        if (deferredSearch.trim() !== '') {
+          const q = deferredSearch.toLowerCase().trim();
           const specsMatch = Object.entries(p.specs || {}).some(
             ([k, v]) => String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)
           );
@@ -176,7 +178,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
       });
   }, [
     products,
-    searchQuery,
+    deferredSearch,
     selectedBrand,
     selectedCategory,
     priceMin,
@@ -203,6 +205,17 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Compact page list: first, last, and the pages around the current one, with gaps (null) between
+  const pageNumbers = useMemo(() => {
+    const pages: (number | null)[] = [];
+    const wanted = new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+    for (let n = 1; n <= totalPages; n++) {
+      if (wanted.has(n)) pages.push(n);
+      else if (pages[pages.length - 1] !== null) pages.push(null);
+    }
+    return pages;
+  }, [currentPage, totalPages]);
 
   // Reset all filters
   const resetFilters = () => {
@@ -238,7 +251,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('catalog-section');
   };
 
   const handleWhatsAppOrder = (product: Product, e: React.MouseEvent) => {
@@ -257,12 +270,13 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         : 'bg-white hover:bg-zinc-100 text-zinc-700 border-zinc-300'
     }`;
 
-  // Filter Controls Content component (shared between desktop sidebar and mobile drawer)
-  const FilterControls = () => (
+  // Filter controls (shared between desktop sidebar and mobile drawer). Rendered as a plain
+  // function call, not <Component />, so the search input isn't remounted on every keystroke.
+  const renderFilterControls = (idSuffix = '') => (
     <div className="space-y-6">
       {/* 1. Search Box */}
       <div className="space-y-2">
-        <label htmlFor="catalog-search-input" className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-700 flex items-center justify-between">
+        <label htmlFor={`catalog-search-input${idSuffix}`} className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-700 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             <Search className="w-3.5 h-3.5 text-amber-500" />
             Search Catalog
@@ -279,7 +293,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         </label>
         <div className="relative">
           <input
-            id="catalog-search-input"
+            id={`catalog-search-input${idSuffix}`}
             type="search"
             placeholder="Search model, drill, saw, SKU..."
             value={searchQuery}
@@ -813,7 +827,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
               )}
             </div>
 
-            <FilterControls />
+            {renderFilterControls()}
           </aside>
 
           {/* Mobile Slide-Over Filter Drawer */}
@@ -846,7 +860,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-5">
-                  <FilterControls />
+                  {renderFilterControls('-mobile')}
                 </div>
 
                 <div className="p-4 border-t border-zinc-200 bg-zinc-50 flex items-center gap-3">
@@ -1235,32 +1249,45 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <nav className="pt-8 flex items-center justify-between border-t border-zinc-300" aria-label="Pages">
+              <nav className="pt-8 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-300" aria-label="Pages">
                 <span className="text-xs sm:text-sm text-zinc-600 font-mono">
                   PAGE <strong className="text-zinc-950 font-bold">{currentPage}</strong> OF {totalPages}
                 </span>
 
-                <div className="flex items-center gap-1.5">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                  {currentPage > 1 && (
                     <button
-                      key={pageNum}
-                      aria-label={`Page ${pageNum}`}
-                      aria-current={currentPage === pageNum ? 'page' : undefined}
-                      onClick={() => goToPage(pageNum)}
-                      className={`w-10 h-10 text-sm font-bold rounded-xl flex items-center justify-center transition-colors cursor-pointer font-display border ${
-                        currentPage === pageNum
-                          ? 'bg-amber-400 text-zinc-950 border-amber-500 font-black shadow-xs'
-                          : 'bg-white hover:bg-zinc-100 text-zinc-700 border-zinc-300'
-                      }`}
+                      onClick={() => goToPage(currentPage - 1)}
+                      className="px-3 sm:px-4 h-10 text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-300 transition-colors cursor-pointer font-display"
                     >
-                      {pageNum}
+                      ← Prev
                     </button>
-                  ))}
+                  )}
+
+                  {pageNumbers.map((pageNum, idx) =>
+                    pageNum === null ? (
+                      <span key={`gap-${idx}`} className="w-6 text-center text-zinc-500 font-bold" aria-hidden="true">…</span>
+                    ) : (
+                      <button
+                        key={pageNum}
+                        aria-label={`Page ${pageNum}`}
+                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                        onClick={() => goToPage(pageNum)}
+                        className={`min-w-10 px-2 h-10 text-sm font-bold rounded-xl flex items-center justify-center transition-colors cursor-pointer font-display border ${
+                          currentPage === pageNum
+                            ? 'bg-amber-400 text-zinc-950 border-amber-500 font-black shadow-xs'
+                            : 'bg-white hover:bg-zinc-100 text-zinc-700 border-zinc-300'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  )}
 
                   {currentPage < totalPages && (
                     <button
-                      onClick={() => goToPage(Math.min(currentPage + 1, totalPages))}
-                      className="px-4 h-10 text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center bg-zinc-950 hover:bg-zinc-800 text-white transition-colors cursor-pointer font-display ml-1"
+                      onClick={() => goToPage(currentPage + 1)}
+                      className="px-3 sm:px-4 h-10 text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center bg-zinc-950 hover:bg-zinc-800 text-white transition-colors cursor-pointer font-display"
                     >
                       Next →
                     </button>

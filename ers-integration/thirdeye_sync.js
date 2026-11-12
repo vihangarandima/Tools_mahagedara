@@ -14,9 +14,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const API_BASE_URL = (process.env.THIRDEYE_API_URL || 'http://103.47.225.144/main_api/Api').replace(/\/+$/, '');
-const USERNAME = process.env.THIRDEYE_USERNAME || 'Developer';
-const PASSWORD = process.env.THIRDEYE_PASSWORD || 'rtt@#123';
-const TOKEN_X = process.env.THIRDEYE_TOKENX || 'ydjJP7B6tq';
+const USERNAME = process.env.THIRDEYE_USERNAME;
+const PASSWORD = process.env.THIRDEYE_PASSWORD;
+const TOKEN_X = process.env.THIRDEYE_TOKENX;
+if (!USERNAME || !PASSWORD || !TOKEN_X) {
+  console.error('Set THIRDEYE_USERNAME, THIRDEYE_PASSWORD and THIRDEYE_TOKENX environment variables first.');
+  process.exit(1);
+}
 
 async function postJson(url, body, headers = {}) {
   const res = await fetch(url, {

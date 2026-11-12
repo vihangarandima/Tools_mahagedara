@@ -3,6 +3,7 @@ import { Menu, X, ShoppingCart, Phone, CreditCard } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { STORE_CONTACT } from '../data/mockProducts';
 import { getStoreStatus } from '../utils/storeHours';
+import { scrollToSection } from '../utils/scrollToSection';
 
 const NAV_SECTIONS = ['catalog-section', 'about-section', 'services-section', 'footer-contact'];
 
@@ -56,16 +57,16 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const handleScrollTo = (id: string, fallbackFn?: () => void) => {
     setIsMobileMenuOpen(false);
-    if (fallbackFn) {
-      fallbackFn();
-    } else {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+    // Start scrolling after the mobile menu has closed: removing it mid-scroll cancels the scroll
+    window.setTimeout(() => {
+      if (fallbackFn) {
+        fallbackFn();
+      } else if (document.getElementById(id)) {
+        scrollToSection(id);
       } else if (id === 'top') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    }
+    }, 50);
   };
 
   return (
