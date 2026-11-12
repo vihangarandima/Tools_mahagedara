@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { ERSProvider, useERS } from './context/ERSContext';
 import { CartProvider, useCart } from './context/CartContext';
 import { Navbar } from './components/Navbar';
@@ -8,13 +8,15 @@ import { ShowroomInfo } from './components/ShowroomInfo';
 import { Footer } from './components/Footer';
 import { ProductModal } from './components/ProductModal';
 import { CartDrawer } from './components/CartDrawer';
-import { CheckoutModal } from './components/CheckoutModal';
 import { OrderSuccessModal } from './components/OrderSuccessModal';
-import { ERSSyncModal } from './components/ERSSyncModal';
-import { ERSGuideModal } from './components/ERSGuideModal';
-import { PaymentPortalModal } from './components/PaymentPortalModal';
 import { QuickWhatsAppButton } from './components/QuickWhatsAppButton';
 import { Product, OrderDetails } from './types';
+
+// Heavy modals are split into their own chunks and only fetched when opened
+const CheckoutModal = lazy(() => import('./components/CheckoutModal').then(m => ({ default: m.CheckoutModal })));
+const PaymentPortalModal = lazy(() => import('./components/PaymentPortalModal').then(m => ({ default: m.PaymentPortalModal })));
+const ERSSyncModal = lazy(() => import('./components/ERSSyncModal').then(m => ({ default: m.ERSSyncModal })));
+const ERSGuideModal = lazy(() => import('./components/ERSGuideModal').then(m => ({ default: m.ERSGuideModal })));
 
 const MainApp: React.FC = () => {
   const { products, isSyncModalOpen, setIsSyncModalOpen, isGuideModalOpen, setIsGuideModalOpen } = useERS();
@@ -115,29 +117,32 @@ const MainApp: React.FC = () => {
         onOpenPaymentPortal={() => setIsPaymentPortalOpen(true)}
       />
 
-      <CheckoutModal
+      <Suspense fallback={null}>
+      {isCheckoutOpen && <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         onOrderComplete={(order) => setCompletedOrder(order)}
-      />
+      />}
 
-      <PaymentPortalModal
+      {isPaymentPortalOpen && <PaymentPortalModal
         isOpen={isPaymentPortalOpen}
         onClose={() => setIsPaymentPortalOpen(false)}
         onPaymentSuccess={(order) => {
           setIsPaymentPortalOpen(false);
           setCompletedOrder(order);
         }}
-      />
+      />}
+      </Suspense>
 
       <OrderSuccessModal
         order={completedOrder}
         onClose={() => setCompletedOrder(null)}
       />
 
-      <ERSSyncModal />
-
-      <ERSGuideModal />
+      <Suspense fallback={null}>
+        {isSyncModalOpen && <ERSSyncModal />}
+        {isGuideModalOpen && <ERSGuideModal />}
+      </Suspense>
 
       <QuickWhatsAppButton />
     </div>

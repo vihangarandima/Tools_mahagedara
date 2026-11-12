@@ -88,7 +88,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onOpenCheckout, onOpenPa
                 key={item.product.id}
                 className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/80 flex gap-3 items-center group hover:border-zinc-300 transition-colors"
               >
-                <img
+                <img loading="lazy" decoding="async"
                   src={item.product.image}
                   alt={item.product.name}
                   className="w-16 h-16 rounded-lg object-contain bg-white border border-zinc-200 shrink-0 p-1"

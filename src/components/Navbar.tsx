@@ -82,8 +82,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             className="flex items-center gap-3 cursor-pointer group py-1"
           >
-            <img
-              src="/images/logo_dark_bg.png"
+            <img fetchPriority="high" decoding="async"
+              src="/images/logo_dark_bg.webp"
               alt="Tools මහගෙදර"
               className="h-11 sm:h-13 w-auto object-contain filter drop-shadow-[0_2px_12px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform duration-300"
             />

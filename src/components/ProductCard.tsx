@@ -36,7 +36,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenQuickVi
 
       {/* Product image with quick actions (hover, keyboard focus, or always on touch screens) */}
       <div className="relative aspect-[4/3] w-full bg-white flex items-center justify-center p-6 overflow-hidden">
-        <img
+        <img decoding="async"
           src={product.image}
           alt={product.name}
           className="w-full h-full object-contain"

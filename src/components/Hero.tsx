@@ -27,7 +27,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog, onOpenFeatured }) 
       <div
         className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-85 transition-opacity duration-700"
         style={{ 
-          backgroundImage: `url('/images/hero_bg.jpg')`,
+          backgroundImage: `url('/images/hero_bg.webp')`,
           filter: 'contrast(1.15) brightness(0.92)'
         }}
       />
@@ -101,10 +101,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog, onOpenFeatured }) 
                 >
                   <div
                     className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url('/images/hardware_stage_bg.jpg')` }}
+                    style={{ backgroundImage: `url('/images/hardware_stage_bg.webp')` }}
                   />
-                  <img
-                    src={featured.image || "/images/tool_1_transparent.png"}
+                  <img fetchPriority="high" decoding="async"
+                    src={featured.image || "/images/tool_1_transparent.webp"}
                     alt={featured.name}
                     className="relative max-h-[82%] max-w-[82%] object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.9)] group-hover:scale-105 transition-transform duration-500"
                   />

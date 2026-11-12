@@ -128,7 +128,7 @@ async function performSyncCycle() {
       items: cleanedItems
     };
 
-    fs.writeFileSync(outputPath, JSON.stringify(metadata, null, 2), 'utf-8');
+    fs.writeFileSync(outputPath, JSON.stringify(metadata), 'utf-8');
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(`[${new Date().toLocaleTimeString()}] ✓ REAL-TIME SYNC OK: ${cleanedItems.length} items checked (${inStockCount} In Stock). Took ${duration}s.`);

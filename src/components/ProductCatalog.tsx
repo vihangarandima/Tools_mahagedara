@@ -691,7 +691,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 </div>
               </div>
 
-              <img
+              <img decoding="async"
                 src={prod.image}
                 alt={prod.name}
                 className="w-14 h-14 object-contain bg-white border border-zinc-200 rounded-xl p-1 shrink-0 group-hover:scale-105 transition-transform"
@@ -1125,7 +1125,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     >
                       <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
                         <div className="relative w-24 h-24 sm:w-28 sm:h-28 bg-white border border-zinc-200 rounded-xl p-2 shrink-0 flex items-center justify-center overflow-hidden">
-                          <img
+                          <img decoding="async"
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-contain group-hover:scale-105 transition-transform"

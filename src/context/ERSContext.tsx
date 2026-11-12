@@ -112,7 +112,7 @@ export const ERSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Automatically load the full ThirdEYE ERP catalog with real products on startup
   useEffect(() => {
-    fetch('/data/thirdeye_inventory.json?t=' + Date.now())
+    fetch('/data/thirdeye_inventory.json', { cache: 'no-cache' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data.items) && data.items.length > 0) {

@@ -116,7 +116,7 @@ async function runSync() {
     items: cleanedItems
   };
 
-  fs.writeFileSync(outputPath, JSON.stringify(metadata, null, 2), 'utf-8');
+  fs.writeFileSync(outputPath, JSON.stringify(metadata), 'utf-8');
   console.log(`✓ Saved inventory snapshot to: ${outputPath}`);
   console.log(`✓ Summary: ${inStockCount} items In Stock / ${cleanedItems.length - inStockCount} Out of Stock.`);
   console.log('==================================================');

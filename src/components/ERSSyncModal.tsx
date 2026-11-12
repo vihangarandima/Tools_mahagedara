@@ -358,7 +358,7 @@ HUGO MAX AIRLESS PAINT SPRAYER,HUGO MAX AIRLESS PAINT SPRAYER,92950,0`;
                   {products.slice(0, 6).map(prod => (
                     <div key={prod.id} className="p-3 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3 min-w-0">
-                        <img src={prod.image} alt={prod.name} className="w-9 h-9 rounded-lg object-cover bg-zinc-950 border border-zinc-800 shrink-0" />
+                        <img loading="lazy" decoding="async" src={prod.image} alt={prod.name} className="w-9 h-9 rounded-lg object-cover bg-zinc-950 border border-zinc-800 shrink-0" />
                         <div className="min-w-0">
                           <div className="font-bold text-white truncate font-sans text-xs">{prod.name}</div>
                           <div className="text-[11px] text-zinc-400">SKU: {prod.sku} • {prod.brand}</div>
@@ -435,7 +435,7 @@ HUGO MAX AIRLESS PAINT SPRAYER,HUGO MAX AIRLESS PAINT SPRAYER,92950,0`;
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <img src={p.image} alt={p.name} className="w-9 h-9 rounded-lg object-cover bg-zinc-900 border border-zinc-800 shrink-0" />
+                            <img loading="lazy" decoding="async" src={p.image} alt={p.name} className="w-9 h-9 rounded-lg object-cover bg-zinc-900 border border-zinc-800 shrink-0" />
                             <div className="min-w-0">
                               <div className="text-xs font-bold text-white truncate">{p.name}</div>
                               <div className="text-[11px] text-zinc-400 font-mono flex items-center gap-1.5">
@@ -470,7 +470,7 @@ HUGO MAX AIRLESS PAINT SPRAYER,HUGO MAX AIRLESS PAINT SPRAYER,92950,0`;
                             Rs. {selectedProductForImg.price.toLocaleString()} • {selectedProductForImg.stockQuantity} Units In Stock
                           </div>
                         </div>
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={customUrlInput || selectedProductForImg.image}
                           alt="Preview"
                           className="w-16 h-16 rounded-xl object-contain bg-zinc-950 border border-zinc-700 shrink-0 p-1"

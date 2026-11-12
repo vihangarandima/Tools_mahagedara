@@ -39,8 +39,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPaymentPortal }) => {
           {/* About */}
           <div className="lg:col-span-4 space-y-5">
             <a href="#top" className="inline-block group">
-              <img
-                src="/images/logo_dark_bg.png"
+              <img loading="lazy" decoding="async"
+                src="/images/logo_dark_bg.webp"
                 alt="Tools මහගෙදර"
                 className="h-14 sm:h-16 w-auto object-contain filter drop-shadow-[0_2px_12px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform"
               />

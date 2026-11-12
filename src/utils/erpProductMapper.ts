@@ -1,4 +1,5 @@
 import { Product } from '../types';
+import { PRODUCT_IMAGES } from '../data/productImages';
 
 export const SAMPLE_TOOL_IMAGES = {
   powerTools: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80',
@@ -91,7 +92,7 @@ export function mapErpItemToProduct(item: any, customImages: Record<string, stri
   const unit = item.unitOfMeasure || item.unitOfMesher || 'Nos';
 
   // Check if admin has set a custom image for this SKU/ID
-  const image = customImages[sku] || customImages[sku.toUpperCase()] || getSampleImageForProduct(name, category);
+  const image = customImages[sku] || customImages[sku.toUpperCase()] || PRODUCT_IMAGES[sku] || getSampleImageForProduct(name, category);
 
   return {
     id: `erp-${sku}`,

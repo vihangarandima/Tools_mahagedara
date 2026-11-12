@@ -169,7 +169,7 @@ def run_thirdeye_sync():
     }
 
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(sync_metadata, f, indent=2, ensure_ascii=False)
+        json.dump(sync_metadata, f, ensure_ascii=False, separators=(",", ":"))
 
     logging.info(f"✓ Saved live inventory catalog to: {output_path}")
     logging.info("==================================================")

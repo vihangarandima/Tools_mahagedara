@@ -249,7 +249,7 @@ export const PaymentPortalModal: React.FC<PaymentPortalModalProps> = ({
               rating: 5,
               reviewsCount: 1,
               warranty: 'Official Company Invoice',
-              image: '/images/tool_1.jpg',
+              image: '/images/tool_1.webp',
               description: `Direct payment for invoice #${invoiceNumber}`
             } as any,
             quantity: 1

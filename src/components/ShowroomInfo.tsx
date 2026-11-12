@@ -26,31 +26,31 @@ interface StoreImage {
 
 const STORE_GALLERY: StoreImage[] = [
   {
-    src: '/images/store_front_kalutara.jpg',
+    src: '/images/store_front_kalutara.webp',
     tag: 'FLAGSHIP STOREFRONT',
     title: 'Galle Road Kalutara Depot',
     desc: 'Located directly on Galle Road, Katukurunda with convenient customer vehicle parking and loading bays.'
   },
   {
-    src: '/images/kalutara_showroom.jpg',
+    src: '/images/kalutara_showroom.webp',
     tag: 'AUTHORIZED SHOWROOM',
     title: 'Brand Power Tool Bays',
     desc: 'Dedicated display racks for DeWALT, BOSCH Professional, MAKITA & DongCheng machinery.'
   },
   {
-    src: '/images/store_testing_bench.jpg',
+    src: '/images/store_testing_bench.webp',
     tag: 'TRY BEFORE YOU BUY',
     title: 'Live Tool Testing Station',
     desc: 'Hands-on workbench with heavy timber blocks and concrete slabs to test power and ergonomics before purchase.'
   },
   {
-    src: '/images/tool_repair_workshop.jpg',
+    src: '/images/tool_repair_workshop.webp',
     tag: 'IN-HOUSE WORKSHOP',
     title: 'Electrical Repair & Rewinding Hub',
     desc: 'Certified technicians performing armature rewinding, bearing replacement, and quick turnaround diagnosis.'
   },
   {
-    src: '/images/express_delivery_depot.jpg',
+    src: '/images/express_delivery_depot.webp',
     tag: 'LOGISTICS & DISPATCH',
     title: 'Island-Wide COD Courier Bay',
     desc: 'Daily courier packaging with custom wooden crating for heavy machinery dispatch to all 25 districts.'
@@ -116,7 +116,7 @@ export const ShowroomInfo: React.FC = () => {
               onClick={() => setSelectedImage(STORE_GALLERY[0])}
               className="lg:col-span-2 group relative rounded-3xl overflow-hidden border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/80 cursor-pointer aspect-[16/9] sm:aspect-[21/10]"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={STORE_GALLERY[0].src}
                 alt={STORE_GALLERY[0].title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -153,7 +153,7 @@ export const ShowroomInfo: React.FC = () => {
               onClick={() => setSelectedImage(STORE_GALLERY[2])}
               className="group relative rounded-3xl overflow-hidden border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/80 cursor-pointer aspect-[16/10] md:aspect-auto"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={STORE_GALLERY[2].src}
                 alt={STORE_GALLERY[2].title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -185,7 +185,7 @@ export const ShowroomInfo: React.FC = () => {
               onClick={() => setSelectedImage(STORE_GALLERY[1])}
               className="group relative rounded-3xl overflow-hidden border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/80 cursor-pointer aspect-[16/10] sm:aspect-[4/3]"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={STORE_GALLERY[1].src}
                 alt={STORE_GALLERY[1].title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -217,7 +217,7 @@ export const ShowroomInfo: React.FC = () => {
               onClick={() => setSelectedImage(STORE_GALLERY[3])}
               className="group relative rounded-3xl overflow-hidden border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/80 cursor-pointer aspect-[16/10] sm:aspect-[4/3]"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={STORE_GALLERY[3].src}
                 alt={STORE_GALLERY[3].title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -249,7 +249,7 @@ export const ShowroomInfo: React.FC = () => {
               onClick={() => setSelectedImage(STORE_GALLERY[4])}
               className="group relative rounded-3xl overflow-hidden border border-zinc-700/80 bg-zinc-900 shadow-2xl shadow-black/80 cursor-pointer aspect-[16/10] sm:aspect-[4/3]"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 src={STORE_GALLERY[4].src}
                 alt={STORE_GALLERY[4].title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -305,8 +305,8 @@ export const ShowroomInfo: React.FC = () => {
             <div className="rounded-3xl bg-zinc-900/90 border border-zinc-700/80 p-6 sm:p-7 shadow-xl shadow-black/60 flex flex-col justify-between gap-6 relative overflow-hidden group hover:border-amber-400/50 transition-colors text-left">
               <div className="space-y-4">
                 <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
-                  <img
-                    src="/images/store_front_kalutara.jpg"
+                  <img loading="lazy" decoding="async"
+                    src="/images/store_front_kalutara.webp"
                     alt="Kalutara Showroom"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -384,8 +384,8 @@ export const ShowroomInfo: React.FC = () => {
             <div className="rounded-3xl bg-zinc-900/90 border border-zinc-700/80 p-6 sm:p-7 shadow-xl shadow-black/60 flex flex-col justify-between gap-6 relative overflow-hidden group hover:border-amber-400/50 transition-colors text-left">
               <div className="space-y-4">
                 <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
-                  <img
-                    src="/images/express_delivery_depot.jpg"
+                  <img loading="lazy" decoding="async"
+                    src="/images/express_delivery_depot.webp"
                     alt="Island-Wide Delivery"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -454,8 +454,8 @@ export const ShowroomInfo: React.FC = () => {
             <div className="rounded-3xl bg-zinc-900/90 border border-zinc-700/80 p-6 sm:p-7 shadow-xl shadow-black/60 flex flex-col justify-between gap-6 group hover:border-emerald-500/50 transition-colors text-left overflow-hidden">
               <div className="space-y-4">
                 <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
-                  <img
-                    src="/images/tool_repair_workshop.jpg"
+                  <img loading="lazy" decoding="async"
+                    src="/images/tool_repair_workshop.webp"
                     alt="Armature Rewinding Workshop"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -574,7 +574,7 @@ export const ShowroomInfo: React.FC = () => {
             </button>
 
             <div className="aspect-[16/9] w-full bg-black relative">
-              <img
+              <img loading="lazy" decoding="async"
                 src={selectedImage.src}
                 alt={selectedImage.title}
                 className="w-full h-full object-cover"

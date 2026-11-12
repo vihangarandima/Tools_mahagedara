@@ -59,7 +59,7 @@ const ProductDialog: React.FC<{ product: Product; onClose: () => void }> = ({ pr
             {/* Gallery */}
             <div className="md:col-span-5 space-y-4">
               <div className="aspect-square rounded-2xl bg-zinc-50 border border-zinc-200 overflow-hidden p-6 flex items-center justify-center">
-                <img src={selectedImage} alt={product.name} className="w-full h-full object-contain" />
+                <img decoding="async" src={selectedImage} alt={product.name} className="w-full h-full object-contain" />
               </div>
 
               {product.images && product.images.length > 1 && (
@@ -74,7 +74,7 @@ const ProductDialog: React.FC<{ product: Product; onClose: () => void }> = ({ pr
                         selectedImage === img ? 'border-amber-500 ring-2 ring-amber-400/40' : 'border-zinc-200 hover:border-zinc-400'
                       }`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-contain" />
+                      <img loading="lazy" decoding="async" src={img} alt="" className="w-full h-full object-contain" />
                     </button>
                   ))}
                 </div>
