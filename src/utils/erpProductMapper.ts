@@ -81,6 +81,19 @@ export function detectBrand(name: string): string {
   return 'Tools Mahagedara';
 }
 
+/** Default product text shown when the admin has not written a description. */
+export function defaultDescription(name: string, sku: string, price: number): string {
+  return `Original ${name} (Item Code: ${sku}) available at Tools Mahagedara Showroom, Katukurunda, Kalutara. Active showroom price: Rs. ${price.toLocaleString()}.`;
+}
+
+export function stockOnHandLabel(stockQuantity: number, unit: string): string {
+  return `${stockQuantity} ${unit} in showroom`;
+}
+
+export function stockWarrantyLabel(inStock: boolean): string {
+  return inStock ? 'Physical Showroom Stock' : 'Order Upon Request';
+}
+
 export function mapErpItemToProduct(item: any, customImages: Record<string, string> = {}): Product {
   const sku = String(item.sku || item.itemCode || '').trim();
   const name = String(item.name || item.itemName || sku).trim();
@@ -108,12 +121,12 @@ export function mapErpItemToProduct(item: any, customImages: Record<string, stri
     inStock,
     rating: 4.8,
     reviewsCount: 5,
-    warranty: inStock ? 'Physical Showroom Stock' : 'Order Upon Request',
+    warranty: stockWarrantyLabel(inStock),
     image,
-    description: `Original ${name} (Item Code: ${sku}) available at Tools Mahagedara Showroom, Katukurunda, Kalutara. Active showroom price: Rs. ${price.toLocaleString()}.`,
+    description: defaultDescription(name, sku, price),
     specs: {
       'Item Code': sku,
-      'Stock on Hand': `${stockQuantity} ${unit} in showroom`,
+      'Stock on Hand': stockOnHandLabel(stockQuantity, unit),
       'Unit of Measure': unit,
       'System Source': 'ThirdEYE ERP Solutions'
     },

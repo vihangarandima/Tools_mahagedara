@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Product, ERSSyncConfig, ERSSyncLog, CartItem } from '../types';
 import { INITIAL_PRODUCTS } from '../data/mockProducts';
 import { mapErpItemToProduct } from '../utils/erpProductMapper';
+import { EMPTY_OVERRIDES, OverridesDoc, applyOverrides, fetchPublicOverrides, skuKey } from '../utils/productOverrides';
 
 export interface StockCheckResult {
   valid: boolean;
@@ -105,6 +106,25 @@ export const ERSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return {};
     }
   });
+
+  // Edits made in the /admin panel (renames, prices, deleted or added products)
+  const [overrides, setOverrides] = useState<OverridesDoc>(EMPTY_OVERRIDES);
+
+  useEffect(() => {
+    const load = () => {
+      fetchPublicOverrides()
+        .then(setOverrides)
+        .catch(() => {
+          // No admin edits available (e.g. offline): the plain ERP catalog is shown
+        });
+    };
+    load();
+    window.addEventListener('focus', load);
+    return () => window.removeEventListener('focus', load);
+  }, []);
+
+  // What shoppers see: the ERP catalog with the admin panel's edits laid over it
+  const visibleProducts = useMemo(() => applyOverrides(products, overrides), [products, overrides]);
 
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState<boolean>(false);
@@ -425,7 +445,15 @@ export const ERSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Check each cart item against real-time live stock
     for (const item of cartItems) {
-      const match = liveMap.get(item.product.sku.toUpperCase()) || liveMap.get(item.product.name.toUpperCase());
+      const erpMatch = liveMap.get(item.product.sku.toUpperCase()) || liveMap.get(item.product.name.toUpperCase());
+      // Admin panel edits win over the ERP values; a deleted product can no longer be ordered
+      const override = overrides.products[skuKey(item.product.sku)];
+      const match = override
+        ? {
+            price: override.price ?? erpMatch?.price ?? item.product.price,
+            stock: override.deleted ? 0 : override.stockQuantity ?? erpMatch?.stock ?? item.product.stockQuantity
+          }
+        : erpMatch;
       if (match) {
         if (match.stock < item.quantity) {
           outOfStockItems.push({
@@ -543,7 +571,7 @@ export const ERSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <ERSContext.Provider
       value={{
-        products,
+        products: visibleProducts,
         config,
         logs,
         customImages,

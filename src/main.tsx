@@ -1,7 +1,11 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode, Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+
+// The admin panel lives at /admin and is only downloaded when that page is opened
+const AdminApp = lazy(() => import('./admin/AdminApp'));
+const isAdminRoute = window.location.pathname.replace(/\/+$/, '') === '/admin';
 
 interface Props {
   children: ReactNode;
@@ -61,7 +65,13 @@ class RootErrorBoundary extends Component<Props, State> {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RootErrorBoundary>
-      <App />
+      {isAdminRoute ? (
+        <Suspense fallback={null}>
+          <AdminApp />
+        </Suspense>
+      ) : (
+        <App />
+      )}
     </RootErrorBoundary>
   </React.StrictMode>
 );
