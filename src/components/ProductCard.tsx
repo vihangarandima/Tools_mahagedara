@@ -22,20 +22,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenQuickVi
 
   // Two key specs for the card
   const specEntries = Object.entries(product.specs || {}).slice(0, 2);
+  const price = Number(product.price) || 0;
+  const rating = Number(product.rating) || 4.8;
+  const hasDiscount = Boolean(product.discountPercentage) && Number(product.discountPercentage) > 0;
+  const hasOriginal = product.originalPrice != null && Number(product.originalPrice) > price;
 
   return (
     <div
       onClick={() => onOpenQuickView(product)}
-      className="group relative bg-white border border-zinc-200 hover:border-zinc-400 rounded-2xl overflow-hidden flex flex-col justify-between cursor-pointer transition-colors text-zinc-900"
+      className="group relative bg-white md:border border-zinc-200 hover:border-zinc-400 rounded-lg md:rounded-2xl overflow-hidden flex flex-col justify-between cursor-pointer transition-colors text-zinc-900"
     >
-      {/* Brand & SKU */}
-      <div className="p-4 pb-0 flex items-center justify-between text-xs">
+      {/* Brand & SKU (larger screens) */}
+      <div className="hidden md:flex p-4 pb-0 items-center justify-between text-xs">
         <span className="font-bold text-zinc-900">{product.brand}</span>
         <span className="text-zinc-500">{product.sku}</span>
       </div>
 
-      {/* Product image with quick actions (hover, keyboard focus, or always on touch screens) */}
-      <div className="relative aspect-[4/3] w-full bg-white flex items-center justify-center p-6 overflow-hidden">
+      {/* Product image */}
+      <div className="relative aspect-square md:aspect-[4/3] w-full bg-white flex items-center justify-center p-2 md:p-6 overflow-hidden">
         <img decoding="async"
           src={product.image}
           alt={product.name}
@@ -43,7 +47,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenQuickVi
           loading="lazy"
         />
 
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100 pointer-coarse:bg-transparent pointer-coarse:items-end transition-opacity flex items-center justify-center gap-2 p-4 pointer-coarse:p-2 z-20">
+        {/* Phone: discount badge on the photo */}
+        {hasDiscount && (
+          <span className="md:hidden absolute top-1.5 left-1.5 bg-red-600 text-white font-black text-[10px] px-1.5 py-0.5 rounded">
+            −{product.discountPercentage}%
+          </span>
+        )}
+
+        {/* Quick actions (larger screens: hover, keyboard focus, or always on touch tablets) */}
+        <div className="hidden md:flex absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100 pointer-coarse:bg-transparent pointer-coarse:items-end transition-opacity items-center justify-center gap-2 p-4 pointer-coarse:p-2 z-20">
           <button
             type="button"
             onClick={(e) => {
@@ -82,8 +94,54 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenQuickVi
         </div>
       </div>
 
-      {/* Name, specs, price */}
-      <div className="p-4 pt-2 text-left space-y-2.5 border-t border-zinc-100">
+      {/* Phone: compact shop-app details */}
+      <div className="md:hidden px-2 pt-1.5 pb-2 text-left space-y-1">
+        <h3 className="text-[13px] leading-snug text-zinc-800 truncate font-sans font-medium tracking-normal">
+          {product.name}
+        </h3>
+
+        <div className="flex items-center gap-1" aria-label={`Rated ${rating} out of 5`}>
+          <div className="flex items-center">
+            {[1, 2, 3, 4, 5].map(s => (
+              <Star
+                key={s}
+                className={`w-3 h-3 ${s <= Math.round(rating) ? 'text-zinc-900 fill-zinc-900' : 'text-zinc-300 fill-zinc-300'}`}
+              />
+            ))}
+          </div>
+          <span className="text-[11px] text-zinc-600">{rating.toFixed(1)}</span>
+          {product.inStock && (
+            <span className="text-[11px] font-semibold text-emerald-700 ml-auto">In stock</span>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-1">
+          <div className="min-w-0 leading-none">
+            <span className="text-[15px] font-black text-orange-600 font-display whitespace-nowrap">
+              <span className="text-[11px] font-bold">Rs.</span> {price.toLocaleString()}
+            </span>
+            {hasOriginal && (
+              <span className="block text-[11px] text-zinc-400 line-through mt-0.5">
+                Rs. {Number(product.originalPrice).toLocaleString()}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product, 1);
+            }}
+            aria-label={`Add ${product.name} to cart`}
+            className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full border-2 border-zinc-900 text-zinc-900 active:bg-amber-400 cursor-pointer"
+          >
+            <ShoppingCart className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Name, specs, price (larger screens) */}
+      <div className="hidden md:block p-4 pt-2 text-left space-y-2.5 border-t border-zinc-100">
         <h3 className="text-base font-bold text-zinc-950 line-clamp-2 font-display leading-snug">
           {product.name}
         </h3>
@@ -97,14 +155,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenQuickVi
         <div className="flex items-baseline justify-between pt-1">
           <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-lg font-black text-zinc-950 font-display">
-              Rs. {(Number(product.price) || 0).toLocaleString()}
+              Rs. {price.toLocaleString()}
             </span>
-            {product.originalPrice != null && Number(product.originalPrice) > Number(product.price) && (
+            {hasOriginal && (
               <span className="text-zinc-500 line-through text-sm">
                 Rs. {Number(product.originalPrice).toLocaleString()}
               </span>
             )}
-            {Boolean(product.discountPercentage) && Number(product.discountPercentage) > 0 && (
+            {hasDiscount && (
               <span className="text-sm font-bold text-red-700">−{product.discountPercentage}%</span>
             )}
           </div>

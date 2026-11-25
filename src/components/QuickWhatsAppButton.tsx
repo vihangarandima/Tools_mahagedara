@@ -13,7 +13,7 @@ export const QuickWhatsAppButton: React.FC = () => {
   return (
     <button
       onClick={handleOpenWhatsApp}
-      className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 h-12 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-lg transition-colors cursor-pointer"
+      className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-2 px-4 h-12 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-lg transition-colors cursor-pointer"
     >
       <MessageSquare className="w-5 h-5 fill-white stroke-none" />
       <span>WhatsApp us</span>

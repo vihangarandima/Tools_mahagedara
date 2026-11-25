@@ -26,34 +26,34 @@ interface StoreImage {
 
 const STORE_GALLERY: StoreImage[] = [
   {
-    src: '/images/store_front_kalutara.webp',
-    tag: 'FLAGSHIP STOREFRONT',
-    title: 'Galle Road Kalutara Depot',
-    desc: 'Located directly on Galle Road, Katukurunda with convenient customer vehicle parking and loading bays.'
+    src: '/images/store_front.webp',
+    tag: 'OUR STOREFRONT',
+    title: 'Galle Road Storefront',
+    desc: 'Our Aluthgama branch at No. 354, Galle Road, with lawn mowers, trolleys and machinery on display out front.'
   },
   {
-    src: '/images/kalutara_showroom.webp',
-    tag: 'AUTHORIZED SHOWROOM',
-    title: 'Brand Power Tool Bays',
-    desc: 'Dedicated display racks for DeWALT, BOSCH Professional, MAKITA & DongCheng machinery.'
+    src: '/images/showroom_floor.webp',
+    tag: 'SHOWROOM FLOOR',
+    title: 'Fully Stocked Aisles',
+    desc: 'Air compressors, jump starters, pressure washers and power tools from INGCO, Ronix, Bosch, Wadfow and more on open display.'
   },
   {
-    src: '/images/store_testing_bench.webp',
-    tag: 'TRY BEFORE YOU BUY',
-    title: 'Live Tool Testing Station',
-    desc: 'Hands-on workbench with heavy timber blocks and concrete slabs to test power and ergonomics before purchase.'
+    src: '/images/drill_wall.webp',
+    tag: 'COMPARE BEFORE YOU BUY',
+    title: 'The Power Drill Wall',
+    desc: 'Over 25 impact drills from INGCO, Wadfow, DongCheng, Ronix, Bosch, Makita and more, hung side by side so you can compare them in hand.'
   },
   {
-    src: '/images/tool_repair_workshop.webp',
-    tag: 'IN-HOUSE WORKSHOP',
-    title: 'Electrical Repair & Rewinding Hub',
-    desc: 'Certified technicians performing armature rewinding, bearing replacement, and quick turnaround diagnosis.'
+    src: '/images/hand_tools_wall.webp',
+    tag: 'HAND TOOLS',
+    title: 'Pliers, Cutters & Hex Keys',
+    desc: 'A full wall of pliers, wire strippers, cutters, scissors and hex key sets from INGCO, Wadfow, DongCheng and Wiseup.'
   },
   {
-    src: '/images/express_delivery_depot.webp',
-    tag: 'LOGISTICS & DISPATCH',
-    title: 'Island-Wide COD Courier Bay',
-    desc: 'Daily courier packaging with custom wooden crating for heavy machinery dispatch to all 25 districts.'
+    src: '/images/stock_warehouse.webp',
+    tag: 'READY STOCK',
+    title: 'Backroom Stock Warehouse',
+    desc: 'Shelves of boxed drills, sanders, blowers, saws and toolkits kept in stock for same-day pickup and island-wide dispatch.'
   }
 ];
 
@@ -282,7 +282,7 @@ export const ShowroomInfo: React.FC = () => {
       </section>
 
       {/* 2. Built For Contractors / Backed by Real Warranties (Redesigned with Rich Visuals) */}
-      <section id="about-section" className="scroll-mt-24 py-20 bg-[#0c0c0e] relative overflow-hidden">
+      <section id="about-section" className="scroll-mt-40 md:scroll-mt-24 py-20 bg-[#0c0c0e] relative overflow-hidden">
         
         {/* Ambient lighting */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_20%_20%,rgba(245,158,11,0.08),transparent)] pointer-events-none" />
@@ -306,8 +306,8 @@ export const ShowroomInfo: React.FC = () => {
               <div className="space-y-4">
                 <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
                   <img loading="lazy" decoding="async"
-                    src="/images/store_front_kalutara.webp"
-                    alt="Kalutara Showroom"
+                    src="/images/showroom_floor.webp"
+                    alt="Inside the Tools Mahagedara showroom"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/40 to-transparent" />
@@ -341,18 +341,16 @@ export const ShowroomInfo: React.FC = () => {
             {/* Card 2: 100% Authorized Dealer */}
             <div className="rounded-3xl bg-zinc-900/90 border border-zinc-700/80 p-6 sm:p-7 shadow-xl shadow-black/60 flex flex-col justify-between gap-6 relative overflow-hidden group hover:border-amber-400/50 transition-colors text-left">
               <div className="space-y-4">
-                <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-950 flex flex-col justify-center items-center p-4">
-                  <div className="text-center space-y-2">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 font-mono text-xs font-black uppercase">
-                      <ShieldCheck className="w-4 h-4 text-amber-400" />
-                      <span>100% GENUINE GUARANTEE</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-4 text-xs font-black tracking-wider text-white pt-2 font-display">
-                      <span className="text-amber-400">DeWALT</span>
-                      <span className="text-blue-400">BOSCH</span>
-                      <span className="text-teal-400">MAKITA</span>
-                      <span className="text-orange-400">DongCheng</span>
-                    </div>
+                <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
+                  <img loading="lazy" decoding="async"
+                    src="/images/accessories_wall.webp"
+                    alt="Genuine brand display walls in the showroom"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/40 to-transparent" />
+                  <div className="absolute bottom-3 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-950/80 backdrop-blur-md border border-zinc-700 text-[11px] font-mono text-amber-400">
+                    <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                    <span>100% Genuine Guarantee</span>
                   </div>
                 </div>
 
@@ -385,8 +383,8 @@ export const ShowroomInfo: React.FC = () => {
               <div className="space-y-4">
                 <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
                   <img loading="lazy" decoding="async"
-                    src="/images/express_delivery_depot.webp"
-                    alt="Island-Wide Delivery"
+                    src="/images/dispatch_stock.webp"
+                    alt="Boxed machinery ready for dispatch"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/40 to-transparent" />
@@ -428,7 +426,7 @@ export const ShowroomInfo: React.FC = () => {
       </section>
 
       {/* 3. In-House Repairs & Workshop Services */}
-      <section id="services-section" className="scroll-mt-24 py-20 bg-[#121215] border-t border-zinc-800 relative overflow-hidden">
+      <section id="services-section" className="scroll-mt-40 md:scroll-mt-24 py-20 bg-[#121215] border-t border-zinc-800 relative overflow-hidden">
         
         {/* Subtle grid and amber lighting */}
         <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
@@ -455,8 +453,8 @@ export const ShowroomInfo: React.FC = () => {
               <div className="space-y-4">
                 <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
                   <img loading="lazy" decoding="async"
-                    src="/images/tool_repair_workshop.webp"
-                    alt="Armature Rewinding Workshop"
+                    src="/images/spare_parts.webp"
+                    alt="Spare armatures, stators and rotors in stock"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/40 to-transparent" />
@@ -493,11 +491,17 @@ export const ShowroomInfo: React.FC = () => {
             {/* Service 2: Warranty Claims */}
             <div className="rounded-3xl bg-zinc-900/90 border border-zinc-700/80 p-6 sm:p-7 shadow-xl shadow-black/60 flex flex-col justify-between gap-6 group hover:border-amber-400/50 transition-colors text-left overflow-hidden">
               <div className="space-y-4">
-                <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800 bg-gradient-to-br from-zinc-800 to-zinc-950 flex flex-col justify-center items-center p-4">
-                  <div className="p-3.5 rounded-2xl bg-amber-400/15 border border-amber-400/30 text-amber-400 mb-2">
-                    <ShieldCheck className="w-8 h-8" />
+                <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
+                  <img loading="lazy" decoding="async"
+                    src="/images/service_counter.webp"
+                    alt="Tools Mahagedara service counter"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/40 to-transparent" />
+                  <div className="absolute bottom-3 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-950/80 backdrop-blur-md border border-zinc-700 text-[11px] font-mono text-zinc-200">
+                    <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Official Service Desk</span>
                   </div>
-                  <span className="font-mono text-xs font-bold text-zinc-300 uppercase">OFFICIAL SERVICE DESK</span>
                 </div>
 
                 <h3 className="text-xl font-black text-white font-display">Warranty claims</h3>
@@ -523,11 +527,17 @@ export const ShowroomInfo: React.FC = () => {
             {/* Service 3: Business & Bulk Orders */}
             <div className="rounded-3xl bg-zinc-900/90 border border-zinc-700/80 p-6 sm:p-7 shadow-xl shadow-black/60 flex flex-col justify-between gap-6 group hover:border-amber-400/50 transition-colors text-left overflow-hidden">
               <div className="space-y-4">
-                <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800 bg-gradient-to-br from-amber-500/15 via-zinc-900 to-zinc-950 flex flex-col justify-center items-center p-4">
-                  <div className="p-3.5 rounded-2xl bg-amber-400 text-zinc-950 mb-2 shadow-lg">
-                    <Building className="w-8 h-8" />
+                <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-zinc-800">
+                  <img loading="lazy" decoding="async"
+                    src="/images/bulk_stock.webp"
+                    alt="Bulk toolbox and machinery stock"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/40 to-transparent" />
+                  <div className="absolute bottom-3 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-950/80 backdrop-blur-md border border-zinc-700 text-[11px] font-mono text-amber-400">
+                    <Building className="w-3.5 h-3.5 text-amber-400" />
+                    <span>B2B Contractor Fleets</span>
                   </div>
-                  <span className="font-mono text-xs font-black text-amber-400 uppercase">B2B CONTRACTOR FLEETS</span>
                 </div>
 
                 <h3 className="text-xl font-black text-white font-display">Business & bulk orders</h3>

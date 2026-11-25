@@ -25,6 +25,8 @@ const MainApp: React.FC = () => {
   const { isCartOpen, setIsCartOpen } = useCart();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [activeProductModal, setActiveProductModal] = useState<Product | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isPaymentPortalOpen, setIsPaymentPortalOpen] = useState(false);
@@ -39,12 +41,13 @@ const MainApp: React.FC = () => {
       else if (isCheckoutOpen) setIsCheckoutOpen(false);
       else if (activeProductModal) setActiveProductModal(null);
       else if (isCartOpen) setIsCartOpen(false);
+      else if (isFilterDrawerOpen) setIsFilterDrawerOpen(false);
       else if (isGuideModalOpen) setIsGuideModalOpen(false);
       else if (isSyncModalOpen) setIsSyncModalOpen(false);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [completedOrder, isPaymentPortalOpen, isCheckoutOpen, activeProductModal, isCartOpen, isGuideModalOpen, isSyncModalOpen]);
+  }, [completedOrder, isPaymentPortalOpen, isCheckoutOpen, activeProductModal, isCartOpen, isFilterDrawerOpen, isGuideModalOpen, isSyncModalOpen]);
 
   // Hidden while online payments are only simulated (see src/data/payments.ts)
   const openPaymentPortal = ONLINE_PAYMENTS_ENABLED ? () => setIsPaymentPortalOpen(true) : undefined;
@@ -71,7 +74,7 @@ const MainApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-amber-400 selection:text-zinc-950">
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-amber-400 selection:text-zinc-950 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
       {/* 1. Sleek Dark Obsidian Header Navbar */}
       <Navbar
         onNavigateHome={scrollToTop}
@@ -80,16 +83,24 @@ const MainApp: React.FC = () => {
         onNavigateServices={scrollToServices}
         onNavigateContact={scrollToContact}
         onOpenPaymentPortal={openPaymentPortal}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        onOpenCategories={() => setIsFilterDrawerOpen(true)}
       />
 
       {/* 2. Hero Section: Architectural editorial hero with typography, trust metrics, and featured hardware showcase */}
-      <Hero 
-        onExploreCatalog={scrollToCatalog}
-        onOpenFeatured={() => {
-          const featured = products.find(p => p.id === 'prod-001') || products[0];
-          if (featured) setActiveProductModal(featured);
-        }}
-      />
+      {/* On phones the shop opens straight onto the product grid, like a shopping app */}
+      <div className="hidden md:block">
+        <Hero
+          onExploreCatalog={scrollToCatalog}
+          onOpenFeatured={() => {
+            const featured = products.find(p => p.id === 'prod-001') || products[0];
+            if (featured) setActiveProductModal(featured);
+          }}
+        />
+      </div>
 
       {/* 3. Main Catalog: Exact 2-Column layout with search, dual price filter, categories, featured products, 3x3 grid, and pagination */}
       <ProductCatalog
@@ -97,6 +108,10 @@ const MainApp: React.FC = () => {
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
         onOpenQuickView={(p) => setActiveProductModal(p)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        isFilterDrawerOpen={isFilterDrawerOpen}
+        onFilterDrawerOpenChange={setIsFilterDrawerOpen}
       />
 
       {/* 4. About Us & Our Services Sections: Central Showroom, Authorized Brands, Spare Parts & Repairs */}

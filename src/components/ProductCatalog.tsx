@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useDeferredValue } from 'react';
+import React, { useState, useMemo, useDeferredValue, useEffect, useRef } from 'react';
 import { scrollToSection } from '../utils/scrollToSection';
 import {
   Search,
@@ -21,7 +21,8 @@ import {
   MessageSquare,
   Eye,
   Layers,
-  ArrowUpDown
+  ArrowUpDown,
+  Loader2
 } from 'lucide-react';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
@@ -33,7 +34,26 @@ interface ProductCatalogProps {
   selectedCategory: string;
   onSelectCategory: (catId: string) => void;
   onOpenQuickView: (product: Product) => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  isFilterDrawerOpen: boolean;
+  onFilterDrawerOpenChange: (open: boolean) => void;
 }
+
+// Phones get an app-style feed (more products load as you scroll) instead of numbered pages
+const MOBILE_QUERY = '(max-width: 767px)';
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const onChange = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return isMobile;
+};
 
 const BRANDS = ['all', 'BOSCH', 'MAKITA', 'DeWALT', 'DongCheng', 'COOFIX', 'INGCO', 'TOTAL', 'HUGO', 'LION'] as const;
 const PRICE_MIN_DEFAULT = 0;
@@ -47,12 +67,16 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   products,
   selectedCategory,
   onSelectCategory,
-  onOpenQuickView
+  onOpenQuickView,
+  searchQuery,
+  onSearchChange: setSearchQuery,
+  isFilterDrawerOpen: isMobileFilterOpen,
+  onFilterDrawerOpenChange: setIsMobileFilterOpen
 }) => {
   const { addToCart } = useCart();
+  const isMobile = useIsMobile();
 
   // Primary filter states
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [priceMin, setPriceMin] = useState<number>(PRICE_MIN_DEFAULT);
   const [priceCap, setPriceCap] = useState<number>(PRICE_MAX_DEFAULT);
@@ -66,7 +90,11 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   // UI display states
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState<boolean>(false);
+
+  // The search box can live in the header, so start from the first page whenever the query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   // Brand product counts
   const brandCounts = useMemo(() => {
@@ -204,7 +232,25 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   const totalItems = filteredProducts.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const currentProducts = isMobile
+    ? filteredProducts.slice(0, currentPage * ITEMS_PER_PAGE)
+    : filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const hasMoreOnMobile = isMobile && currentProducts.length < totalItems;
+
+  // Phones: load the next batch when the end of the grid scrolls into view
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el || !hasMoreOnMobile) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0]?.isIntersecting) setCurrentPage(p => p + 1);
+      },
+      { rootMargin: '600px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMoreOnMobile, currentProducts.length]);
 
   // Compact page list: first, last, and the pages around the current one, with gaps (null) between
   const pageNumbers = useMemo(() => {
@@ -261,6 +307,13 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     );
     window.open(`https://wa.me/${STORE_CONTACT.whatsapp.replace('+', '')}?text=${msg}`, '_blank');
   };
+
+  // Phone quick-filter chips
+  const quickFiltersIdle = !discountOnly && minRating === 0 && !inStockOnly && sortBy === 'DEFAULT';
+  const chipClass = (active: boolean) =>
+    `shrink-0 whitespace-nowrap h-8 px-3 rounded-full border flex items-center gap-1.5 cursor-pointer transition-colors ${
+      active ? 'bg-zinc-950 border-zinc-950 text-amber-400' : 'bg-white border-zinc-300 text-zinc-700'
+    }`;
 
   // Reusable Pill styling for top categories
   const pillClass = (selected: boolean) =>
@@ -719,11 +772,80 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   );
 
   return (
-    <section id="catalog-section" className="scroll-mt-24 py-16 bg-catalog text-zinc-900">
-      <div className="max-w-[1360px] mx-auto px-4 sm:px-6">
+    <section id="catalog-section" className="scroll-mt-40 md:scroll-mt-24 pt-0 pb-6 md:py-16 bg-catalog text-zinc-900">
+      <div className="max-w-[1360px] mx-auto px-2 sm:px-4 md:px-6">
+
+        <h1 className="sr-only md:hidden">Tools Mahagedara: power tools and machinery shop in Sri Lanka</h1>
+
+        {/* Phone: quick filter chips */}
+        <div className="md:hidden -mx-2 px-2 bg-catalog border-b border-zinc-200 flex items-center gap-2 overflow-x-auto no-scrollbar py-2 mb-2 text-[13px] font-semibold font-display" role="group" aria-label="Quick filters">
+          <button
+            type="button"
+            aria-pressed={quickFiltersIdle}
+            onClick={() => {
+              setDiscountOnly(false);
+              setMinRating(0);
+              setInStockOnly(false);
+              setSortBy('DEFAULT');
+              setCurrentPage(1);
+            }}
+            className={chipClass(quickFiltersIdle)}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            aria-pressed={discountOnly}
+            onClick={() => { setDiscountOnly(!discountOnly); setCurrentPage(1); }}
+            className={chipClass(discountOnly)}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Deals
+          </button>
+          <button
+            type="button"
+            aria-pressed={minRating === 4}
+            onClick={() => { setMinRating(minRating === 4 ? 0 : 4); setCurrentPage(1); }}
+            className={chipClass(minRating === 4)}
+          >
+            <Star className="w-3.5 h-3.5" />
+            Top rated
+          </button>
+          <button
+            type="button"
+            aria-pressed={inStockOnly}
+            onClick={() => { setInStockOnly(!inStockOnly); setCurrentPage(1); }}
+            className={chipClass(inStockOnly)}
+          >
+            <Check className="w-3.5 h-3.5" />
+            In stock
+          </button>
+          <button
+            type="button"
+            aria-pressed={sortBy === 'PRICE_LOW'}
+            onClick={() => { setSortBy(sortBy === 'PRICE_LOW' ? 'DEFAULT' : 'PRICE_LOW'); setCurrentPage(1); }}
+            className={chipClass(sortBy === 'PRICE_LOW')}
+          >
+            <ArrowUpDown className="w-3.5 h-3.5" />
+            Lowest price
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsMobileFilterOpen(true)}
+            className={chipClass(false)}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="min-w-5 h-5 px-1 rounded-full bg-amber-400 text-zinc-950 text-[10px] flex items-center justify-center font-mono font-bold">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        </div>
 
         {/* Section Header with live inventory counter */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
+        <div className="hidden md:flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-amber-600 uppercase tracking-wider mb-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -778,7 +900,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         </div>
 
         {/* Horizontal Category Filter Track */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar scroll-smooth" role="group" aria-label="Category">
+        <div className="hidden md:flex items-center gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar scroll-smooth" role="group" aria-label="Category">
           <button
             onClick={() => selectCategory('all')}
             aria-pressed={selectedCategory === 'all'}
@@ -884,10 +1006,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           )}
 
           {/* Right Column: Active Chips, Sort Bar, and Product Grid */}
-          <div className="lg:col-span-9 space-y-6">
+          <div className="lg:col-span-9 space-y-3 md:space-y-6">
 
             {/* Top Control Bar: Results count, Sort Dropdown & View Mode Switcher */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-300">
+            <div className="hidden md:flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-300">
               <div className="flex items-center gap-3 text-sm text-zinc-600" aria-live="polite">
                 <span>
                   Showing <strong className="text-zinc-950 font-bold">{totalItems === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, totalItems)}</strong> of <strong className="text-zinc-950 font-bold">{totalItems}</strong> tools
@@ -952,7 +1074,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
             {/* ACTIVE FILTERS CHIP BAR (Organized & Dismissible) */}
             {activeFilterCount > 0 && (
-              <div className="flex flex-wrap items-center gap-2 p-3 bg-white border border-zinc-200 rounded-2xl">
+              <div className="flex flex-wrap items-center gap-2 p-2.5 md:p-3 bg-white border border-zinc-200 rounded-xl md:rounded-2xl">
                 <span className="text-xs font-bold text-zinc-500 font-mono uppercase tracking-wider mr-1">
                   Active Filters:
                 </span>
@@ -1114,8 +1236,8 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             )}
 
             {/* PRODUCT GRID VIEW (3x3 Responsive) */}
-            {totalItems > 0 && viewMode === 'grid' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {totalItems > 0 && (
+              <div className={`grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6 ${viewMode === 'list' ? 'md:hidden' : ''}`}>
                 {currentProducts.map(product => (
                   <ProductCard
                     key={product.id}
@@ -1128,7 +1250,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
             {/* PRODUCT LIST VIEW (Contractor Technical Detail List) */}
             {totalItems > 0 && viewMode === 'list' && (
-              <div className="space-y-4">
+              <div className="hidden md:block space-y-4">
                 {currentProducts.map(product => {
                   const specEntries = Object.entries(product.specs || {}).slice(0, 3);
                   return (
@@ -1247,8 +1369,27 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
               </div>
             )}
 
+            {/* Phones: endless feed */}
+            {hasMoreOnMobile && (
+              <div ref={loadMoreRef} className="flex justify-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => p + 1)}
+                  className="h-11 px-5 rounded-full bg-white border border-zinc-300 text-sm font-semibold text-zinc-700 flex items-center gap-2 cursor-pointer"
+                >
+                  <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                  Loading more tools
+                </button>
+              </div>
+            )}
+            {isMobile && totalItems > 0 && !hasMoreOnMobile && (
+              <p className="text-center text-xs text-zinc-500 pt-2">
+                That is all {totalItems} {totalItems === 1 ? 'tool' : 'tools'}
+              </p>
+            )}
+
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {!isMobile && totalPages > 1 && (
               <nav className="pt-8 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-300" aria-label="Pages">
                 <span className="text-xs sm:text-sm text-zinc-600 font-mono">
                   PAGE <strong className="text-zinc-950 font-bold">{currentPage}</strong> OF {totalPages}
