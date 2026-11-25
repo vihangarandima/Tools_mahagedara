@@ -772,10 +772,8 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   );
 
   return (
-    <section id="catalog-section" className="scroll-mt-40 md:scroll-mt-24 pt-0 pb-6 md:py-16 bg-catalog text-zinc-900">
+    <section id="catalog-section" className="scroll-mt-40 md:scroll-mt-24 pt-2 pb-6 md:py-16 bg-catalog text-zinc-900">
       <div className="max-w-[1360px] mx-auto px-2 sm:px-4 md:px-6">
-
-        <h1 className="sr-only md:hidden">Tools Mahagedara: power tools and machinery shop in Sri Lanka</h1>
 
         {/* Phone: quick filter chips */}
         <div className="md:hidden -mx-2 px-2 bg-catalog border-b border-zinc-200 flex items-center gap-2 overflow-x-auto no-scrollbar py-2 mb-2 text-[13px] font-semibold font-display" role="group" aria-label="Quick filters">

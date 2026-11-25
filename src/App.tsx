@@ -91,16 +91,13 @@ const MainApp: React.FC = () => {
       />
 
       {/* 2. Hero Section: Architectural editorial hero with typography, trust metrics, and featured hardware showcase */}
-      {/* On phones the shop opens straight onto the product grid, like a shopping app */}
-      <div className="hidden md:block">
-        <Hero
-          onExploreCatalog={scrollToCatalog}
-          onOpenFeatured={() => {
-            const featured = products.find(p => p.id === 'prod-001') || products[0];
-            if (featured) setActiveProductModal(featured);
-          }}
-        />
-      </div>
+      <Hero
+        onExploreCatalog={scrollToCatalog}
+        onOpenFeatured={() => {
+          const featured = products.find(p => p.id === 'prod-001') || products[0];
+          if (featured) setActiveProductModal(featured);
+        }}
+      />
 
       {/* 3. Main Catalog: Exact 2-Column layout with search, dual price filter, categories, featured products, 3x3 grid, and pagination */}
       <ProductCatalog

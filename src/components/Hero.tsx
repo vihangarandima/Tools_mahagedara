@@ -24,13 +24,13 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog }) => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#09090b] pt-12 pb-16 lg:pt-16 lg:pb-20 text-white">
+    <section className="relative overflow-hidden bg-[#09090b] pt-6 pb-8 md:pt-12 md:pb-16 lg:pt-16 lg:pb-20 text-white">
 
       {/* Deep Atmospheric Industrial Machinery & Workshop Background - High Visibility */}
       <div
         className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-85 transition-opacity duration-700"
         style={{ 
-          backgroundImage: `url('/images/hero_bg.webp')`,
+          backgroundImage: `url('/images/hero_store_wall.webp')`,
           filter: 'contrast(1.15) brightness(0.92)'
         }}
       />
@@ -41,21 +41,23 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog }) => {
       <div className="absolute inset-0 bg-gradient-to-r from-[#09090b]/92 via-[#09090b]/60 to-transparent pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-black/25 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_75%_45%,rgba(245,158,11,0.18),transparent)] pointer-events-none" />
+      {/* Phones: text spans the full width, so darken the whole photo a little more */}
+      <div className="absolute inset-0 bg-black/35 md:hidden pointer-events-none" />
 
       <div className="relative z-10 max-w-[1360px] mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
           {/* Left: headline, pitch, proof points and actions */}
-          <div className="lg:col-span-7 space-y-6 text-left">
-            <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black uppercase tracking-tight text-white font-display leading-[1.05] drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+          <div className="lg:col-span-7 space-y-4 md:space-y-6 text-left">
+            <h1 className="text-[28px] sm:text-5xl xl:text-6xl font-black uppercase tracking-tight text-white font-display leading-[1.05] drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
               Engineered <span className="text-amber-400 drop-shadow-[0_2px_12px_rgba(245,158,11,0.4)]">power.</span><br />
               Built for professionals.
             </h1>
-            <p className="text-base sm:text-lg text-zinc-200 max-w-xl leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
+            <p className="hidden md:block text-base sm:text-lg text-zinc-200 max-w-xl leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
               Kalutara’s wholesale and retail dealer for genuine DeWALT, BOSCH Professional, MAKITA and DongCheng tools. Factory warranties, in-house repairs, and cash on delivery anywhere in Sri Lanka.
             </p>
 
-            <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-300">
+            <ul className="flex flex-wrap gap-x-4 md:gap-x-6 gap-y-2 text-xs md:text-sm text-zinc-300">
               <li className="flex items-center gap-1.5">
                 <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                 <span>{STORE_CONTACT.rating} on Google</span>
@@ -70,11 +72,11 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog }) => {
               </li>
             </ul>
 
-            <div className="flex flex-wrap items-center gap-3 pt-1">
+            <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:items-center md:gap-3 pt-1">
               <button
                 type="button"
                 onClick={scrollToCatalog}
-                className="px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-sm transition-colors rounded-xl flex items-center gap-2 cursor-pointer font-display"
+                className="px-3 md:px-6 py-3 md:py-3.5 bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-[13px] md:text-sm transition-colors rounded-xl flex items-center justify-center gap-2 cursor-pointer font-display"
               >
                 <span>Browse {products.length} tools</span>
                 <ArrowDown className="w-4 h-4" />
@@ -84,16 +86,17 @@ export const Hero: React.FC<HeroProps> = ({ onExploreCatalog }) => {
                 href={`https://wa.me/${STORE_CONTACT.whatsapp.replace('+', '')}?text=${encodeURIComponent('Hello Tools Mahagedara, I need pricing and availability for tools/machinery.')}`}
                 target="_blank"
                 rel="noreferrer"
-                className="px-5 py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm transition-colors rounded-xl flex items-center gap-2 cursor-pointer font-display"
+                className="px-3 md:px-5 py-3 md:py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[13px] md:text-sm transition-colors rounded-xl flex items-center justify-center gap-2 cursor-pointer font-display"
               >
-                <span>Get a quote on WhatsApp</span>
+                <span className="md:hidden">WhatsApp quote</span>
+                <span className="hidden md:inline">Get a quote on WhatsApp</span>
                 <ArrowUpRight className="w-4 h-4" />
               </a>
             </div>
           </div>
 
           {/* Right: current offer banner (set in src/data/offer.ts) */}
-          <div className="lg:col-span-5">
+          <div className="hidden md:block lg:col-span-5">
             <div className="rounded-3xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 text-white">
               {CURRENT_OFFER.image ? (
                 <a
