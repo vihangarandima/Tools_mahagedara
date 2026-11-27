@@ -3,13 +3,13 @@ import { PRODUCT_IMAGES } from '../data/productImages';
 import { getNearMatchImage } from '../data/nearMatchImages';
 
 export const SAMPLE_TOOL_IMAGES = {
-  powerTools: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80',
-  paintSprayer: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=600&q=80',
-  handTools: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?auto=format&fit=crop&w=600&q=80',
-  machinery: 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=600&q=80',
-  measuring: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
-  toolBox: 'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=600&q=80',
-  hardware: 'https://images.unsplash.com/photo-1581147036324-c17ac41dfa6c?auto=format&fit=crop&w=600&q=80'
+  powerTools: '/images/tool_6.webp',
+  paintSprayer: '/images/products/ASG4042.webp',
+  handTools: '/images/tool_20.webp',
+  machinery: '/images/products/VPM3708.webp',
+  measuring: '/images/products/HDCD01150.webp',
+  toolBox: '/images/products/HTB02.webp',
+  hardware: '/images/products/AKDB1125.webp'
 };
 
 export function getSampleImageForProduct(name: string, category: string): string {
