@@ -734,13 +734,18 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 <h4 className="text-xs font-bold text-zinc-900 group-hover:text-amber-600 transition-colors truncate font-display leading-tight">
                   {prod.name}
                 </h4>
-                <div className="flex items-center gap-1.5 text-xs font-bold font-sans">
+                <div className="flex items-center gap-1.5 font-sans flex-wrap">
                   {prod.originalPrice != null && Number(prod.originalPrice) > Number(prod.price) && (
                     <span className="text-zinc-400 line-through text-[10px] font-mono">
                       Rs. {Number(prod.originalPrice).toLocaleString()}
                     </span>
                   )}
-                  <span className="text-red-600">
+                  {Boolean(prod.discountPercentage) && Number(prod.discountPercentage) > 0 && (
+                    <span className="text-[9px] font-black bg-red-600 text-white px-1 py-0.5 rounded">
+                      −{prod.discountPercentage}%
+                    </span>
+                  )}
+                  <span className="text-sm font-black text-red-600">
                     Rs. {(Number(prod.price) || 0).toLocaleString()}
                   </span>
                 </div>
@@ -1313,14 +1318,23 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
                       <div className="flex md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-4 pt-3 md:pt-0 border-t md:border-t-0 border-zinc-200 shrink-0">
                         <div className="text-left md:text-right">
+                          {((product.originalPrice && product.originalPrice > product.price) || Boolean(product.discountPercentage)) && (
+                            <div className="flex items-center md:justify-end gap-1.5 mb-0.5">
+                              {product.originalPrice && product.originalPrice > product.price && (
+                                <span className="text-xs text-zinc-400 line-through font-mono">
+                                  Rs. {product.originalPrice.toLocaleString()}
+                                </span>
+                              )}
+                              {Boolean(product.discountPercentage) && (
+                                <span className="text-[10px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded">
+                                  −{product.discountPercentage}%
+                                </span>
+                              )}
+                            </div>
+                          )}
                           <div className="text-xl font-black text-zinc-950 font-display">
                             Rs. {product.price.toLocaleString()}
                           </div>
-                          {product.originalPrice && (
-                            <div className="text-xs text-zinc-400 line-through font-mono">
-                              Rs. {product.originalPrice.toLocaleString()}
-                            </div>
-                          )}
                           <div className="text-[11px] text-emerald-700 font-semibold font-mono">
                             {product.inStock ? 'Ready for Dispatch' : 'Out of Stock'}
                           </div>

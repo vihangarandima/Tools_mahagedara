@@ -106,16 +106,24 @@ const ProductDialog: React.FC<{ product: Product; onClose: () => void }> = ({ pr
               </div>
 
               <div className="flex flex-wrap items-end justify-between gap-4 pb-6 border-b border-zinc-200">
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-3xl font-black text-zinc-950 font-display">
+                <div className="space-y-1">
+                  {((product.originalPrice && product.originalPrice > product.price) || Boolean(product.discountPercentage)) && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {product.originalPrice && product.originalPrice > product.price && (
+                        <span className="text-sm text-zinc-500 line-through">
+                          Rs. {product.originalPrice.toLocaleString()}
+                        </span>
+                      )}
+                      {Boolean(product.discountPercentage) && (
+                        <span className="text-xs font-black bg-red-600 text-white px-2 py-0.5 rounded">
+                          −{product.discountPercentage}%
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <div className="text-3xl font-black text-zinc-950 font-display">
                     Rs. {product.price.toLocaleString()}
-                  </span>
-                  {product.originalPrice && (
-                    <span className="text-base text-zinc-500 line-through">Rs. {product.originalPrice.toLocaleString()}</span>
-                  )}
-                  {product.discountPercentage && (
-                    <span className="text-base font-bold text-red-700">−{product.discountPercentage}%</span>
-                  )}
+                  </div>
                 </div>
                 <span className={`text-sm font-semibold ${product.inStock ? 'text-emerald-700' : 'text-red-700'}`}>
                   {product.inStock ? `In stock (${product.stockQuantity})` : 'Out of stock'}

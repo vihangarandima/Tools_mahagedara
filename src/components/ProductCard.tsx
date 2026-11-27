@@ -117,14 +117,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenQuickVi
 
         <div className="flex items-center justify-between gap-1">
           <div className="min-w-0 leading-none">
-            <span className="text-[15px] font-black text-orange-600 font-display whitespace-nowrap">
+            {(hasOriginal || hasDiscount) && (
+              <div className="flex items-center gap-1 mb-0.5">
+                {hasOriginal && (
+                  <span className="text-[11px] text-zinc-400 line-through">
+                    Rs. {Number(product.originalPrice).toLocaleString()}
+                  </span>
+                )}
+                {hasDiscount && (
+                  <span className="text-[10px] font-black bg-red-600 text-white px-1 py-0.5 rounded">
+                    −{product.discountPercentage}%
+                  </span>
+                )}
+              </div>
+            )}
+            <span className="text-base font-black text-orange-600 font-display whitespace-nowrap">
               <span className="text-[11px] font-bold">Rs.</span> {price.toLocaleString()}
             </span>
-            {hasOriginal && (
-              <span className="block text-[11px] text-zinc-400 line-through mt-0.5">
-                Rs. {Number(product.originalPrice).toLocaleString()}
-              </span>
-            )}
           </div>
           <button
             type="button"
@@ -152,19 +161,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenQuickVi
           </p>
         )}
 
-        <div className="flex items-baseline justify-between pt-1">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-lg font-black text-zinc-950 font-display">
+        <div className="flex items-end justify-between pt-1 gap-2">
+          <div className="space-y-0.5">
+            {(hasOriginal || hasDiscount) && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {hasOriginal && (
+                  <span className="text-zinc-500 line-through text-xs">
+                    Rs. {Number(product.originalPrice).toLocaleString()}
+                  </span>
+                )}
+                {hasDiscount && (
+                  <span className="text-[11px] font-black bg-red-600 text-white px-1.5 py-0.5 rounded">
+                    −{product.discountPercentage}%
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="text-xl font-black text-zinc-950 font-display leading-tight">
               Rs. {price.toLocaleString()}
-            </span>
-            {hasOriginal && (
-              <span className="text-zinc-500 line-through text-sm">
-                Rs. {Number(product.originalPrice).toLocaleString()}
-              </span>
-            )}
-            {hasDiscount && (
-              <span className="text-sm font-bold text-red-700">−{product.discountPercentage}%</span>
-            )}
+            </div>
           </div>
 
           <div className="flex items-center gap-1 text-sm shrink-0" aria-label={`Rated ${product.rating || 5} out of 5`}>
