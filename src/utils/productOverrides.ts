@@ -86,7 +86,7 @@ export function productFromCustomOverride(key: string, override: ProductOverride
     name: override.name,
     price: override.price,
     stockQuantity: override.stockQuantity ?? 0
-  });
+  }, {}, false);
   const { name, price, stockQuantity, ...rest } = override;
   const product = applyOverrideToProduct(base, rest);
   return { ...product, specs: { ...product.specs, 'System Source': 'Tools Mahagedara' } };

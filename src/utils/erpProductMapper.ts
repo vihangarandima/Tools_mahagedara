@@ -94,13 +94,28 @@ export function stockWarrantyLabel(inStock: boolean): string {
   return inStock ? 'Physical Showroom Stock' : 'Order Upon Request';
 }
 
-export function mapErpItemToProduct(item: any, customImages: Record<string, string> = {}): Product {
+export function mapErpItemToProduct(
+  item: any,
+  customImages: Record<string, string> = {},
+  applyStoreDiscount = true
+): Product {
   const sku = String(item.sku || item.itemCode || '').trim();
   const name = String(item.name || item.itemName || sku).trim();
   const category = detectCategory(name);
   const brand = detectBrand(name);
-  const price = Number(item.price ?? item.itemRate) || 0;
-  const originalPrice = Number(item.originalPrice ?? item.maxsales) || price;
+  const rawPrice = Number(item.price ?? item.itemRate) || 0;
+  const rawOriginal = Number(item.originalPrice ?? item.maxsales) || rawPrice;
+  const baseOriginal = rawOriginal > rawPrice ? rawOriginal : rawPrice;
+  const hasBaseDiscount = baseOriginal > rawPrice && rawPrice > 0;
+  const price =
+    applyStoreDiscount && rawPrice > 0 && !hasBaseDiscount
+      ? Math.round(rawPrice * 0.9)
+      : rawPrice;
+  const originalPrice = baseOriginal > price ? baseOriginal : price;
+  const discountPercentage =
+    applyStoreDiscount && rawPrice > 0 && !hasBaseDiscount
+      ? 10
+      : Number(item.discountPercentage ?? item.item_discount_PCN) || 0;
   const stockQuantity = Math.max(0, Number(item.stockQuantity ?? item.onHand) || 0);
   const inStock = stockQuantity > 0;
   const unit = item.unitOfMeasure || item.unitOfMesher || 'Nos';
@@ -115,8 +130,8 @@ export function mapErpItemToProduct(item: any, customImages: Record<string, stri
     brand,
     category,
     price,
-    originalPrice: originalPrice > price ? originalPrice : price,
-    discountPercentage: Number(item.discountPercentage ?? item.item_discount_PCN) || 0,
+    originalPrice,
+    discountPercentage,
     stockQuantity,
     inStock,
     rating: 4.8,
